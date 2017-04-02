@@ -1,0 +1,27 @@
+#hex-grid
+  height: 70%
+  width: 70%
+
+  //Offset each row
+  @for $i from 1 through 11
+    .hex.row:nth-child(#{$i})
+      margin-left: calc(9.0909% * calc(calc(#{$i} - 1) / 2))
+
+  .hex.row
+    content: " "
+    display: block
+    width: 100%
+    height: 9.0909%
+
+    .hex.cell
+      background-size: cover
+      height: 100%
+      width: 9.0909%
+      float: left
+
+      &.neutral
+        background-image: url("../static/Hex_Neutral.png")
+      &.red
+        background-image: url("../static/Hex_Red.png")
+      &.blue
+        background-image: url("../static/Hex_Blue.png")

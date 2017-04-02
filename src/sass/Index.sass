@@ -1,0 +1,25 @@
+*
+  margin: 0px
+  padding: 0px
+
+@import "./Grid"
+
+.container
+  margin: auto
+  margin-top: 0px
+  height: 100vh
+
+  @media (orientation:portrait)
+    width: 80vw
+
+  @media (orientation:landscape)
+    width: 80vh
+
+  .square
+    padding-top: 20px
+
+    @media (orientation:portrait)
+      height: 80vw
+
+    @media (orientation:landscape)
+      height: 80vh
