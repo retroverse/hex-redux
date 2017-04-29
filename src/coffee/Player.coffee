@@ -1,4 +1,4 @@
 module.exports = class
-  constructor: ->
+  constructor: ->this.init()
   init: ->
   main: (grid)->return null

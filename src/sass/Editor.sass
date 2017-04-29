@@ -1,3 +1,4 @@
+@import "./Partials"
 $break_small: 670px
 
 .editor
@@ -12,20 +13,32 @@ $break_small: 670px
     &:last-child
       margin-top: 120px
 
+  .editortitle
+    +label
+    font-size: 30px
+    font-weight: bold
+    margin-bottom: 10px
+    margin-left: 15px
+
+    &.red
+      color: $hex-red
+    &.blue
+      color: $hex-blue
+
   .editortext
     width: 95%
     height: 100%
     margin: auto
     border-radius: 5px
+    border: 2px solid $light-grey
 
   button.editorapply
+    +button()
+
     width: 100px
     height: 30px
     margin-top: 20px
     margin-left: 20px
-    outline: none
-    border: none
-    border-radius: 5px
 
     //For the bottom of the page
     margin-bottom: 50px

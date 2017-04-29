@@ -1,4 +1,4 @@
-#Require Jquery for getting editors 
+#Require Jquery for getting editors
 $ = require 'jquery'
 
 #Require Brace (Browserify Ace)
@@ -8,11 +8,11 @@ require('brace/theme/dawn')
 
 #Default Bot
 defaultbot = """
-  class MyBot extends Player {
-    main(grid) {
-      return new Hex(0, 0)
+    class RedBot extends Player {
+        main(grid) {
+            return new Hex(0, 0)
+        }
     }
-  }
 """
 
 #Create Editors
@@ -22,8 +22,30 @@ for editor, i in $('.editortext')
   e.getSession().setMode 'ace/mode/javascript'
   e.setTheme 'ace/theme/dawn'
   e.$blockScrolling = Infinity
-  e.setValue(defaultbot, -1)
+
+  if i is 0
+    e.setValue(defaultbot, -1)
+  else
+    e.setValue(defaultbot.replace("Red", "Blue"), -1)
+
+  e.colour = if i is 0 then 'red' else 'blue'
+
   editors.push e
+
+#Setup apply buttons
+for button in $ '.editorapply'
+  $(button).click ({target})->
+    if $(target).hasClass 'red'
+      engine.ace.setClass(0)
+    if $(target).hasClass 'blue'
+      engine.ace.setClass(1)
+
+setClass = (i)->
+  cl = this.getClass(i)
+  if cl
+    col = if i is 0 then 'red' else 'blue'
+    engine.setPlayer(col, cl)
+
 
 getClass = (i)->
   editor = this.editors[i]
@@ -36,7 +58,12 @@ getClass = (i)->
     return
 
   if typeof ret is 'function'
-    test = new ret
+    try
+      test = new ret()
+    catch e
+      console.warn "Error instantiating Bot"
+      console.warn e
+      return
     if test instanceof Player
       return ret
     else
@@ -46,5 +73,6 @@ getClass = (i)->
 
 module.exports = {
   editors,
-  getClass
+  getClass,
+  setClass
 }

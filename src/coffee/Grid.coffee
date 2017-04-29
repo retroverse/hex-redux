@@ -18,6 +18,14 @@ module.exports = class
       @root.append row = $('<div class="hex row"></div>')
       for j in [0...@size]
         row.append col = ('<div class="hex cell"></div>')
+
+  restart: ->
+    @state = []
+    for i in [0...@size]
+      @state[i] = []
+      for j in [0...@size]
+        @state[i][j] = new Hex i, j, { value: 'neutral' }
+
   place: (x, y, val)->
     unless 0<=x<=10 and 0<=y<=10
       throw 'Invalid Arguments (Out of Range)'
@@ -28,6 +36,7 @@ module.exports = class
         return true
     else
       throw 'Invalid Arguments (No Such Node)'
+
 
   updateConnections: ->
     i = j = 0

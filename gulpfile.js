@@ -36,6 +36,7 @@ gulp.task('css', function(){
 gulp.task('watchify', function(){
   var args = watchify.args
   args.extensions = ['.coffee']
+  args.debug = true
   bundler = watchify(browserify(config.browserifyEntry, args), args)
   bundler.transform(coffeeify)
 
@@ -44,6 +45,9 @@ gulp.task('watchify', function(){
     bundler.bundle()
       .on("error", gutil.log.bind(gutil, "Browserify Error"))
       .pipe(source(config.browserifyBundle))
+      .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(config.buildDir + "/js"))
     gutil.log(gutil.colors.green('Rebundled'))
   }
