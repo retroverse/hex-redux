@@ -9,7 +9,9 @@ html
   body
     .container
       .square
-        h1.title Hex
+        h1.title(style="float: left;") Hex
+        .glyph.spin.last(onclick="engine.restart()")
+          .material-icons replay
         #hex-grid
       .editor
         h3.editortitle.red Player 1

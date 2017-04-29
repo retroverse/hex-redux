@@ -47389,7 +47389,7 @@ require('brace/mode/javascript');
 
 require('brace/theme/dawn');
 
-defaultbot = "class RedBot extends Player {\n    main(grid) {\n        return new Hex(0, 0)\n    }\n}";
+defaultbot = "class RedBot extends Player {\n    main(grid) {\n        return new Hex(\n            Math.random()*11,\n            Math.random()*11\n        )\n    }\n}";
 
 editors = [];
 
@@ -47523,12 +47523,13 @@ module.exports = (function() {
   };
 
   _Class.prototype.update = function() {
-    var active, returned, x, y;
+    var active, ref, returned, x, y;
     if (this.running) {
       active = this.players[this.activePlayer];
       returned = active.main(_.clone(this.grid.state, true));
       if (returned instanceof Hex) {
         x = returned.x, y = returned.y;
+        ref = [Math.floor(x), Math.floor(y)], x = ref[0], y = ref[1];
         if (this.grid.place(x, y, this.activePlayer)) {
           this.swapActivePlayer();
         }
@@ -47769,6 +47770,10 @@ if (!window.engine) {
 window.Player = require('./Player');
 
 window.Hex = require('./Hex');
+
+engine.ace.setClass(0);
+
+engine.ace.setClass(1);
 
 window.engine.update();
 

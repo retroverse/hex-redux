@@ -45,6 +45,9 @@ module.exports = class
         #Get Value from Returned
         {x, y} = returned
 
+        #Floor Values
+        [x, y] = [Math.floor(x), Math.floor(y)]
+
         #Attempt to take spot, if succesfull swap players
         if @grid.place x, y, @activePlayer
           @swapActivePlayer()

@@ -1,0 +1,35 @@
+@import "./Partials"
+
+.glyph
+  cursor: pointer
+  .material-icons
+    color: $darker-grey
+    line-height: 85px
+    vertical-align: middle
+    margin-left: 20px
+    font-size: 30px
+    margin-bottom: -20px
+    user-select: none
+    transition: .6s
+    transition-timing-function: ease-out
+
+  &:hover
+    .material-icons
+      color: $font-col
+
+  &:active
+    .material-icons
+      color: $light-grey
+
+  &.spin
+    &:hover
+      .material-icons
+        transform: rotate(-430deg)
+
+    &:active
+      .material-icons
+        transition: .15s
+  &.last:after
+    display: block
+    content: ""
+    clear: both
