@@ -9,5 +9,8 @@ unless window.engine
 window.Player = require('./Player')
 window.Hex = require('./Hex')
 
+#Load Default Bots
+engine.ace.setClass(0)
+engine.ace.setClass(1)
 
 window.engine.update()

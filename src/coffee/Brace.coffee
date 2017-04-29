@@ -10,7 +10,10 @@ require('brace/theme/dawn')
 defaultbot = """
     class RedBot extends Player {
         main(grid) {
-            return new Hex(0, 0)
+            return new Hex(
+                Math.random()*11,
+                Math.random()*11
+            )
         }
     }
 """
