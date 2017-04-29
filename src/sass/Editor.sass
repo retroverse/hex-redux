@@ -1,0 +1,31 @@
+$break_small: 670px
+
+.editor
+  width: 50%
+  height: 400px
+  float: left
+
+  @media screen and (max-width: $break_small)
+    float: none
+    width: 100%
+
+    &:last-child
+      margin-top: 120px
+
+  .editortext
+    width: 95%
+    height: 100%
+    margin: auto
+    border-radius: 5px
+
+  button.editorapply
+    width: 100px
+    height: 30px
+    margin-top: 20px
+    margin-left: 20px
+    outline: none
+    border: none
+    border-radius: 5px
+
+    //For the bottom of the page
+    margin-bottom: 50px
