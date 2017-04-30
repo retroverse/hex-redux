@@ -24,6 +24,9 @@ module.exports = class
   restart: ->
     @grid.restart()
     @running = true
+    @resetPlayer('red')
+    @resetPlayer('blue')
+    @activePlayer = 'red'
 
   swapActivePlayer: ->
     if @activePlayer is 'red'
@@ -34,13 +37,37 @@ module.exports = class
   setPlayer: (which, player)->
     @players[which] = new player
 
+  resetPlayer: (which)->
+    @players[which] = new @players[which].constructor
+
+  iterateGenerator: (active)->
+    yielded = active.generator.next({
+      grid: _.clone @grid.state, true
+      succesfull: active.generator.previousSuccesfull
+    })
+    active.generator.previousSuccesfull = false
+    if yielded.done
+      console.warn 'Generator ended early, perhaps add a while loop?'
+    return yielded.value
+
   update: ->
     if @running
       #Player whos turn it is
       active = @players[@activePlayer]
 
-      #Perform Turn
-      returned = active.main _.clone @grid.state, true
+      if active.generator
+        #Iterate Generator
+        returned = @iterateGenerator(active)
+      else
+        #Perform Turn
+        returned = active.main _.clone @grid.state, true
+
+      #Check if returned is a generator
+      if typeof returned is 'function'
+        active.generator = returned(_.clone @grid.state, true)
+        returned = @iterateGenerator(active)
+
+      #Assuming Hex
       if returned instanceof Hex
         #Get Value from Returned
         {x, y} = returned
@@ -51,6 +78,9 @@ module.exports = class
         #Attempt to take spot, if succesfull swap players
         if @grid.place x, y, @activePlayer
           @swapActivePlayer()
+          #Tell Generator it Worked
+          if active.generator
+            active.generator.previousSuccesfull = true
       else
         console.warn('Incorrect Player Return (Not Instance of Hex)')
 

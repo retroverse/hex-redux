@@ -47507,7 +47507,10 @@ module.exports = (function() {
 
   _Class.prototype.restart = function() {
     this.grid.restart();
-    return this.running = true;
+    this.running = true;
+    this.resetPlayer('red');
+    this.resetPlayer('blue');
+    return this.activePlayer = 'red';
   };
 
   _Class.prototype.swapActivePlayer = function() {
@@ -47522,16 +47525,44 @@ module.exports = (function() {
     return this.players[which] = new player;
   };
 
+  _Class.prototype.resetPlayer = function(which) {
+    return this.players[which] = new this.players[which].constructor;
+  };
+
+  _Class.prototype.iterateGenerator = function(active) {
+    var yielded;
+    yielded = active.generator.next({
+      grid: _.clone(this.grid.state, true),
+      succesfull: active.generator.previousSuccesfull
+    });
+    active.generator.previousSuccesfull = false;
+    if (yielded.done) {
+      console.warn('Generator ended early, perhaps add a while loop?');
+    }
+    return yielded.value;
+  };
+
   _Class.prototype.update = function() {
     var active, ref, returned, x, y;
     if (this.running) {
       active = this.players[this.activePlayer];
-      returned = active.main(_.clone(this.grid.state, true));
+      if (active.generator) {
+        returned = this.iterateGenerator(active);
+      } else {
+        returned = active.main(_.clone(this.grid.state, true));
+      }
+      if (typeof returned === 'function') {
+        active.generator = returned(_.clone(this.grid.state, true));
+        returned = this.iterateGenerator(active);
+      }
       if (returned instanceof Hex) {
         x = returned.x, y = returned.y;
         ref = [Math.floor(x), Math.floor(y)], x = ref[0], y = ref[1];
         if (this.grid.place(x, y, this.activePlayer)) {
           this.swapActivePlayer();
+          if (active.generator) {
+            active.generator.previousSuccesfull = true;
+          }
         }
       } else {
         console.warn('Incorrect Player Return (Not Instance of Hex)');
@@ -47599,7 +47630,8 @@ module.exports = (function() {
   _Class.prototype.place = function(x, y, val) {
     var node;
     if (!((0 <= x && x <= 10) && (0 <= y && y <= 10))) {
-      throw 'Invalid Arguments (Out of Range)';
+      console.warn('Invalid Arguments (Out of Range)');
+      return;
     }
     node = this.state[x][y];
     if (node) {
@@ -47608,7 +47640,7 @@ module.exports = (function() {
         return true;
       }
     } else {
-      throw 'Invalid Arguments (No Such Node)';
+      console.warn('Invalid Arguments (No Such Node)');
     }
   };
 
@@ -47789,6 +47821,8 @@ module.exports = (function() {
   _Class.prototype.main = function(grid) {
     return null;
   };
+
+  _Class.prototype.generator = null;
 
   return _Class;
 

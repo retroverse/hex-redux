@@ -28,14 +28,16 @@ module.exports = class
 
   place: (x, y, val)->
     unless 0<=x<=10 and 0<=y<=10
-      throw 'Invalid Arguments (Out of Range)'
+      console.warn 'Invalid Arguments (Out of Range)'
+      return
     node = @state[x][y]
     if node
       if node.value is 'neutral'
         node.value = val
         return true
     else
-      throw 'Invalid Arguments (No Such Node)'
+      console.warn 'Invalid Arguments (No Such Node)'
+      return
 
 
   updateConnections: ->
