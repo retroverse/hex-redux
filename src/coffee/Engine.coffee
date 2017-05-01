@@ -42,7 +42,7 @@ module.exports = class
 
   iterateGenerator: (active)->
     yielded = active.generator.next({
-      grid: _.clone @grid.state, true
+      grid: _.clone @grid, true
       succesfull: active.generator.previousSuccesfull
     })
     active.generator.previousSuccesfull = false
@@ -60,11 +60,11 @@ module.exports = class
         returned = @iterateGenerator(active)
       else
         #Perform Turn
-        returned = active.main _.clone @grid.state, true
+        returned = active.main _.clone @grid, true
 
       #Check if returned is a generator
       if typeof returned is 'function'
-        active.generator = returned(_.clone @grid.state, true)
+        active.generator = returned(_.clone @grid, true)
         returned = @iterateGenerator(active)
 
       #Assuming Hex

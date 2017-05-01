@@ -47532,7 +47532,7 @@ module.exports = (function() {
   _Class.prototype.iterateGenerator = function(active) {
     var yielded;
     yielded = active.generator.next({
-      grid: _.clone(this.grid.state, true),
+      grid: _.clone(this.grid, true),
       succesfull: active.generator.previousSuccesfull
     });
     active.generator.previousSuccesfull = false;
@@ -47549,10 +47549,10 @@ module.exports = (function() {
       if (active.generator) {
         returned = this.iterateGenerator(active);
       } else {
-        returned = active.main(_.clone(this.grid.state, true));
+        returned = active.main(_.clone(this.grid, true));
       }
       if (typeof returned === 'function') {
-        active.generator = returned(_.clone(this.grid.state, true));
+        active.generator = returned(_.clone(this.grid, true));
         returned = this.iterateGenerator(active);
       }
       if (returned instanceof Hex) {
@@ -47579,13 +47579,15 @@ module.exports = (function() {
 
 
 },{"./BotConfig":8,"./Grid":11,"./Hex":12,"./Player":14,"lodash":6}],11:[function(require,module,exports){
-var $, Hex;
+var $, GridProto, Hex, grid;
 
 $ = require('jquery');
 
 Hex = require('./Hex');
 
-module.exports = (function() {
+GridProto = require('./lib/Grid');
+
+grid = (function() {
   function _Class(selector, size) {
     var col, i, j, k, l, m, o, ref, ref1, ref2, ref3, row;
     this.size = size != null ? size : 11;
@@ -47768,8 +47770,12 @@ module.exports = (function() {
 
 })();
 
+GridProto(grid);
 
-},{"./Hex":12,"jquery":5}],12:[function(require,module,exports){
+module.exports = grid;
+
+
+},{"./Hex":12,"./lib/Grid":15,"jquery":5}],12:[function(require,module,exports){
 module.exports = (function() {
   function _Class(x, y, arg) {
     this.x = x;
@@ -47827,6 +47833,85 @@ module.exports = (function() {
   return _Class;
 
 })();
+
+
+},{}],15:[function(require,module,exports){
+module.exports = function(grid) {
+  grid.prototype.get = function(x, y) {
+    var hex;
+    hex = this.state[x][y];
+    if (hex) {
+      return hex;
+    }
+  };
+  grid.prototype.empty = function(x, y) {
+    var hex;
+    hex = this.get(x, y);
+    if (hex) {
+      return hex.value === 'neutral';
+    }
+  };
+  grid.prototype.all = function() {
+    var column, hexs, k, l, len, len1, ref, row;
+    hexs = [];
+    ref = this.state;
+    for (k = 0, len = ref.length; k < len; k++) {
+      column = ref[k];
+      for (l = 0, len1 = column.length; l < len1; l++) {
+        row = column[l];
+        hexs.push(row);
+      }
+    }
+    return hexs;
+  };
+  grid.prototype.neighbours = function(x, y) {
+    var i, j, k, l, len, len1, neighbours, ref, ref1, ref2, ref3;
+    neighbours = [];
+    ref = [-1, 0, 1];
+    for (k = 0, len = ref.length; k < len; k++) {
+      i = ref[k];
+      ref1 = [-1, 0, 1];
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        j = ref1[l];
+        if (!((i === 0 && j === 0) || i === j)) {
+          if ((0 <= (ref2 = x + i) && ref2 <= 10)) {
+            if ((0 <= (ref3 = y + j) && ref3 <= 10)) {
+              neighbours.push(this.state[x + i][y + j]);
+            }
+          }
+        }
+      }
+    }
+    return neighbours;
+  };
+  grid.prototype.is_neighbour = function(x1, y1, x2, y2) {
+    var hex, k, len, ref;
+    ref = this.neighbours(x1, y1);
+    for (k = 0, len = ref.length; k < len; k++) {
+      hex = ref[k];
+      if (hex.x === x2 && hex.y === y2) {
+        return true;
+      }
+    }
+    return false;
+  };
+  grid.prototype.row = function(y) {
+    var k, results, x;
+    results = [];
+    for (x = k = 0; k < 11; x = ++k) {
+      results.push(this.get(x, y));
+    }
+    return results;
+  };
+  return grid.prototype.column = function(x) {
+    var k, results, y;
+    results = [];
+    for (y = k = 0; k < 11; y = ++k) {
+      results.push(this.get(x, y));
+    }
+    return results;
+  };
+};
 
 
 },{}]},{},[13])

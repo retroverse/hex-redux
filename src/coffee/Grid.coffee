@@ -1,7 +1,8 @@
 $ = require 'jquery'
 Hex = require './Hex'
+GridProto = require('./lib/Grid')
 
-module.exports = class
+grid = class
   constructor: (selector, @size=11)->
     #Define State
     @state = []
@@ -100,3 +101,8 @@ module.exports = class
 
     ##Update Connections
     @updateConnections()
+
+#Prototype
+GridProto(grid)
+
+module.exports = grid
