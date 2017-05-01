@@ -47763,6 +47763,8 @@ grid = (function() {
       i = 0;
       j++;
     }
+    this.updateConnections();
+    this.updateConnections();
     return this.updateConnections();
   };
 
