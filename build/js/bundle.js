@@ -47543,13 +47543,23 @@ module.exports = (function() {
   };
 
   _Class.prototype.update = function() {
-    var active, ref, returned, x, y;
+    var active, e, ref, returned, x, y;
     if (this.running) {
       active = this.players[this.activePlayer];
       if (active.generator) {
-        returned = this.iterateGenerator(active);
+        try {
+          returned = this.iterateGenerator(active);
+        } catch (error) {
+          e = error;
+          console.warn('Bot encounted a runtime error. ', e);
+        }
       } else {
-        returned = active.main(_.clone(this.grid, true));
+        try {
+          returned = active.main(_.clone(this.grid, true));
+        } catch (error) {
+          e = error;
+          console.warn('Bot encounted a runtime error. ', e);
+        }
       }
       if (typeof returned === 'function') {
         active.generator = returned(_.clone(this.grid, true));
@@ -47846,12 +47856,15 @@ module.exports = function(grid) {
       return hex;
     }
   };
-  grid.prototype.empty = function(x, y) {
-    var hex;
-    hex = this.get(x, y);
-    if (hex) {
-      return hex.value === 'neutral';
-    }
+  grid.prototype.is_empty = function(h) {
+    return h.value === 'neutral';
+  };
+  grid.prototype.is_neutral = grid.prototype.is_empty;
+  grid.prototype.is_red = function(h) {
+    return h.value === 'red';
+  };
+  grid.prototype.is_red = function(h) {
+    return h.value === 'blue';
   };
   grid.prototype.all = function() {
     var column, hexs, k, l, len, len1, ref, row;

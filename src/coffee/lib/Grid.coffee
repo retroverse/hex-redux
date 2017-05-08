@@ -5,11 +5,19 @@ module.exports = (grid)->
     if hex
       return hex
 
-  #Gets whether a hex is empty
-  grid.prototype.empty = (x, y)->
-    hex = this.get(x, y)
-    if hex
-      return hex.value is 'neutral'
+  #Returns whether a hex is empty
+  grid.prototype.is_empty = (h)->
+    h.value is 'neutral'
+
+  grid.prototype.is_neutral = grid.prototype.is_empty
+
+  #Returns whether a hex is red
+  grid.prototype.is_red = (h)->
+    h.value is 'red'
+
+  #Returns whether a hex is blue
+  grid.prototype.is_red = (h)->
+    h.value is 'blue'
 
   grid.prototype.all = ->
     hexs = []

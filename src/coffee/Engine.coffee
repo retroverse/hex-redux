@@ -57,10 +57,16 @@ module.exports = class
 
       if active.generator
         #Iterate Generator
-        returned = @iterateGenerator(active)
+        try
+          returned = @iterateGenerator(active)
+        catch e
+          console.warn('Bot encounted a runtime error. ', e)
       else
         #Perform Turn
-        returned = active.main _.clone @grid, true
+        try
+          returned = active.main _.clone @grid, true
+        catch e
+          console.warn('Bot encounted a runtime error. ', e)
 
       #Check if returned is a generator
       if typeof returned is 'function'
