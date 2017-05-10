@@ -100,6 +100,9 @@ grid = class
       j++
 
     ##Update Connections
+    ##HACK
+    @updateConnections()
+    @updateConnections()
     @updateConnections()
 
 #Prototype
