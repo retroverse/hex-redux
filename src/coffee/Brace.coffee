@@ -26,11 +26,13 @@ for editor, i in $('.editortext')
   e.setTheme 'ace/theme/dawn'
   e.$blockScrolling = Infinity
 
+  #Set Default Value
   if i is 0
     e.setValue(defaultbot, -1)
   else
     e.setValue(defaultbot.replace("Red", "Blue"), -1)
 
+  #Sets colour
   e.colour = if i is 0 then 'red' else 'blue'
 
   editors.push e
@@ -39,8 +41,10 @@ for editor, i in $('.editortext')
 for button in $ '.editorapply'
   $(button).click ({target})->
     if $(target).hasClass 'red'
+      engine.persistence.save(0, engine.ace)
       engine.ace.setClass(0)
     if $(target).hasClass 'blue'
+      engine.persistence.save(1, engine.ace)
       engine.ace.setClass(1)
 
 setClass = (i)->
@@ -48,6 +52,12 @@ setClass = (i)->
   if cl
     col = if i is 0 then 'red' else 'blue'
     engine.setPlayer(col, cl)
+
+checkPersistence = (persistence)->
+  for e, i in this.editors
+    #Check for persistence
+    if persistence.get(i)
+      e.setValue(persistence.get(i), -1)
 
 
 getClass = (i)->
@@ -77,5 +87,6 @@ getClass = (i)->
 module.exports = {
   editors,
   getClass,
-  setClass
+  setClass,
+  checkPersistence
 }

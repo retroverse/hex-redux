@@ -13,4 +13,4 @@ window.Hex = require('./Hex')
 engine.ace.setClass(0)
 engine.ace.setClass(1)
 
-window.engine.update()
+window.engine.loop()

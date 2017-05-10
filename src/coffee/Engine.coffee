@@ -2,6 +2,7 @@ BotConfig = require('./BotConfig')
 Grid = require('./Grid')
 Player = require('./Player')
 Hex = require('./Hex')
+Persistence = require('./Persistence')
 _ = require('lodash')
 
 module.exports = class
@@ -12,9 +13,12 @@ module.exports = class
       red: new Player
       blue: new Player
     @activePlayer = 'red'
-    @updateDelay = 0
+    @loopDelay = 0
     @running = true
     @ace = ace
+    @persistence = new Persistence
+    @persistence.init()
+    @ace.checkPersistence(@persistence)
 
   win: (who, hex)->
     if @running
@@ -50,45 +54,9 @@ module.exports = class
       console.warn 'Generator ended early, perhaps add a while loop?'
     return yielded.value
 
-  update: ->
+  loop: ->
     if @running
-      #Player whos turn it is
-      active = @players[@activePlayer]
-
-      if active.generator
-        #Iterate Generator
-        try
-          returned = @iterateGenerator(active)
-        catch e
-          console.warn('Bot encounted a runtime error. ', e)
-      else
-        #Perform Turn
-        try
-          returned = active.main _.clone @grid, true
-        catch e
-          console.warn('Bot encounted a runtime error. ', e)
-
-      #Check if returned is a generator
-      if typeof returned is 'function'
-        active.generator = returned(_.clone @grid, true)
-        returned = @iterateGenerator(active)
-
-      #Assuming Hex
-      if returned instanceof Hex
-        #Get Value from Returned
-        {x, y} = returned
-
-        #Floor Values
-        [x, y] = [Math.floor(x), Math.floor(y)]
-
-        #Attempt to take spot, if succesfull swap players
-        if @grid.place x, y, @activePlayer
-          @swapActivePlayer()
-          #Tell Generator it Worked
-          if active.generator
-            active.generator.previousSuccesfull = true
-      else
-        console.warn('Incorrect Player Return (Not Instance of Hex)')
+      @update()
 
     #Update The Grid Visuals
     @grid.update()
@@ -97,4 +65,43 @@ module.exports = class
     BotConfig.update @ace
 
     #Call me again
-    setTimeout(@update.bind(this), @updateDelay)
+    setTimeout(@loop.bind(this), @loopDelay)
+
+  update: ->
+    #Player whos turn it is
+    active = @players[@activePlayer]
+
+    if active.generator
+      #Iterate Generator
+      try
+        returned = @iterateGenerator(active)
+      catch e
+        console.warn('Bot encounted a runtime error. ', e)
+    else
+      #Perform Turn
+      try
+        returned = active.main _.clone @grid, true
+      catch e
+        console.warn('Bot encounted a runtime error. ', e)
+
+    #Check if returned is a generator
+    if typeof returned is 'function'
+      active.generator = returned(_.clone @grid, true)
+      returned = @iterateGenerator(active)
+
+    #Assuming Hex
+    if returned instanceof Hex
+      #Get Value from Returned
+      {x, y} = returned
+
+      #Floor Values
+      [x, y] = [Math.floor(x), Math.floor(y)]
+
+      #Attempt to take spot, if succesfull swap players
+      if @grid.place x, y, @activePlayer
+        @swapActivePlayer()
+        #Tell Generator it Worked
+        if active.generator
+          active.generator.previousSuccesfull = true
+    else
+      console.warn('Incorrect Player Return (Not Instance of Hex)')

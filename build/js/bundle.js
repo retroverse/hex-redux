@@ -47379,7 +47379,7 @@ module.exports = {
 
 
 },{"jquery":5}],9:[function(require,module,exports){
-var $, ace, button, defaultbot, e, editor, editors, getClass, i, j, k, len, len1, ref, ref1, setClass;
+var $, ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, len, len1, ref, ref1, setClass;
 
 $ = require('jquery');
 
@@ -47416,9 +47416,11 @@ for (k = 0, len1 = ref1.length; k < len1; k++) {
     var target;
     target = arg.target;
     if ($(target).hasClass('red')) {
+      engine.persistence.save(0, engine.ace);
       engine.ace.setClass(0);
     }
     if ($(target).hasClass('blue')) {
+      engine.persistence.save(1, engine.ace);
       return engine.ace.setClass(1);
     }
   });
@@ -47431,6 +47433,21 @@ setClass = function(i) {
     col = i === 0 ? 'red' : 'blue';
     return engine.setPlayer(col, cl);
   }
+};
+
+checkPersistence = function(persistence) {
+  var l, len2, ref2, results;
+  ref2 = this.editors;
+  results = [];
+  for (i = l = 0, len2 = ref2.length; l < len2; i = ++l) {
+    e = ref2[i];
+    if (persistence.get(i)) {
+      results.push(e.setValue(persistence.get(i), -1));
+    } else {
+      results.push(void 0);
+    }
+  }
+  return results;
 };
 
 getClass = function(i) {
@@ -47467,12 +47484,13 @@ getClass = function(i) {
 module.exports = {
   editors: editors,
   getClass: getClass,
-  setClass: setClass
+  setClass: setClass,
+  checkPersistence: checkPersistence
 };
 
 
 },{"brace":1,"brace/mode/javascript":2,"brace/theme/dawn":3,"jquery":5}],10:[function(require,module,exports){
-var BotConfig, Grid, Hex, Player, _;
+var BotConfig, Grid, Hex, Persistence, Player, _;
 
 BotConfig = require('./BotConfig');
 
@@ -47481,6 +47499,8 @@ Grid = require('./Grid');
 Player = require('./Player');
 
 Hex = require('./Hex');
+
+Persistence = require('./Persistence');
 
 _ = require('lodash');
 
@@ -47493,9 +47513,12 @@ module.exports = (function() {
       blue: new Player
     };
     this.activePlayer = 'red';
-    this.updateDelay = 0;
+    this.loopDelay = 0;
     this.running = true;
     this.ace = ace;
+    this.persistence = new Persistence;
+    this.persistence.init();
+    this.ace.checkPersistence(this.persistence);
   }
 
   _Class.prototype.win = function(who, hex) {
@@ -47542,45 +47565,49 @@ module.exports = (function() {
     return yielded.value;
   };
 
-  _Class.prototype.update = function() {
-    var active, e, ref, returned, x, y;
+  _Class.prototype.loop = function() {
     if (this.running) {
-      active = this.players[this.activePlayer];
-      if (active.generator) {
-        try {
-          returned = this.iterateGenerator(active);
-        } catch (error) {
-          e = error;
-          console.warn('Bot encounted a runtime error. ', e);
-        }
-      } else {
-        try {
-          returned = active.main(_.clone(this.grid, true));
-        } catch (error) {
-          e = error;
-          console.warn('Bot encounted a runtime error. ', e);
-        }
-      }
-      if (typeof returned === 'function') {
-        active.generator = returned(_.clone(this.grid, true));
-        returned = this.iterateGenerator(active);
-      }
-      if (returned instanceof Hex) {
-        x = returned.x, y = returned.y;
-        ref = [Math.floor(x), Math.floor(y)], x = ref[0], y = ref[1];
-        if (this.grid.place(x, y, this.activePlayer)) {
-          this.swapActivePlayer();
-          if (active.generator) {
-            active.generator.previousSuccesfull = true;
-          }
-        }
-      } else {
-        console.warn('Incorrect Player Return (Not Instance of Hex)');
-      }
+      this.update();
     }
     this.grid.update();
     BotConfig.update(this.ace);
-    return setTimeout(this.update.bind(this), this.updateDelay);
+    return setTimeout(this.loop.bind(this), this.loopDelay);
+  };
+
+  _Class.prototype.update = function() {
+    var active, e, ref, returned, x, y;
+    active = this.players[this.activePlayer];
+    if (active.generator) {
+      try {
+        returned = this.iterateGenerator(active);
+      } catch (error) {
+        e = error;
+        console.warn('Bot encounted a runtime error. ', e);
+      }
+    } else {
+      try {
+        returned = active.main(_.clone(this.grid, true));
+      } catch (error) {
+        e = error;
+        console.warn('Bot encounted a runtime error. ', e);
+      }
+    }
+    if (typeof returned === 'function') {
+      active.generator = returned(_.clone(this.grid, true));
+      returned = this.iterateGenerator(active);
+    }
+    if (returned instanceof Hex) {
+      x = returned.x, y = returned.y;
+      ref = [Math.floor(x), Math.floor(y)], x = ref[0], y = ref[1];
+      if (this.grid.place(x, y, this.activePlayer)) {
+        this.swapActivePlayer();
+        if (active.generator) {
+          return active.generator.previousSuccesfull = true;
+        }
+      }
+    } else {
+      return console.warn('Incorrect Player Return (Not Instance of Hex)');
+    }
   };
 
   return _Class;
@@ -47588,7 +47615,7 @@ module.exports = (function() {
 })();
 
 
-},{"./BotConfig":8,"./Grid":11,"./Hex":12,"./Player":14,"lodash":6}],11:[function(require,module,exports){
+},{"./BotConfig":8,"./Grid":11,"./Hex":12,"./Persistence":14,"./Player":15,"lodash":6}],11:[function(require,module,exports){
 var $, GridProto, Hex, grid;
 
 $ = require('jquery');
@@ -47787,7 +47814,7 @@ GridProto(grid);
 module.exports = grid;
 
 
-},{"./Hex":12,"./lib/Grid":15,"jquery":5}],12:[function(require,module,exports){
+},{"./Hex":12,"./lib/Grid":16,"jquery":5}],12:[function(require,module,exports){
 module.exports = (function() {
   function _Class(x, y, arg) {
     this.x = x;
@@ -47825,10 +47852,70 @@ engine.ace.setClass(0);
 
 engine.ace.setClass(1);
 
-window.engine.update();
+window.engine.loop();
 
 
-},{"./Brace":9,"./Engine":10,"./Hex":12,"./Player":14}],14:[function(require,module,exports){
+},{"./Brace":9,"./Engine":10,"./Hex":12,"./Player":15}],14:[function(require,module,exports){
+var Persistence;
+
+Persistence = (function() {
+  function Persistence() {}
+
+  Persistence.prototype.available = false;
+
+  Persistence.prototype.getAvailable = function(type) {
+    var e, storage, x;
+    try {
+      storage = window[type];
+      x = '__storage_test__';
+      storage.setItem(x, x);
+      storage.removeItem(x);
+      return true;
+    } catch (error) {
+      e = error;
+      return e instanceof DOMException && (e.code === 22 || e.code === 1014 || e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') && storage.length !== 0;
+    }
+  };
+
+  Persistence.prototype.init = function() {
+    return this.available = this.getAvailable('localStorage');
+  };
+
+  Persistence.prototype.clear = function() {
+    if (this.available) {
+      localStorage.removeItem('hex-bot-red');
+      return localStorage.removeItem('hex-bot-blue');
+    }
+  };
+
+  Persistence.prototype.get = function(which) {
+    var col, key;
+    if (this.available) {
+      col = which === 0 ? 'red' : 'blue';
+      key = "hex-bot-" + col;
+      return localStorage.getItem(key);
+    }
+    return void 0;
+  };
+
+  Persistence.prototype.save = function(which, brace) {
+    var col, key, val;
+    if (this.available) {
+      val = brace.editors[which].getValue();
+      col = which === 0 ? 'red' : 'blue';
+      key = "hex-bot-" + col;
+      return localStorage.setItem(key, val);
+    }
+  };
+
+  return Persistence;
+
+})();
+
+module.exports = Persistence;
+
+
+},{}],15:[function(require,module,exports){
 module.exports = (function() {
   function _Class() {
     this.init();
@@ -47847,7 +47934,7 @@ module.exports = (function() {
 })();
 
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports = function(grid) {
   grid.prototype.get = function(x, y) {
     var hex;
