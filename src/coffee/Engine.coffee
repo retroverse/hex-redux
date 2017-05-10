@@ -2,6 +2,7 @@ BotConfig = require('./BotConfig')
 Grid = require('./Grid')
 Player = require('./Player')
 Hex = require('./Hex')
+Persistence = require('./Persistence')
 _ = require('lodash')
 
 module.exports = class
@@ -15,6 +16,9 @@ module.exports = class
     @updateDelay = 0
     @running = true
     @ace = ace
+    @persistence = new Persistence
+    @persistence.init()
+    @ace.checkPersistence(@persistence)
 
   win: (who, hex)->
     if @running
