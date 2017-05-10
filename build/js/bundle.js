@@ -47513,7 +47513,7 @@ module.exports = (function() {
       blue: new Player
     };
     this.activePlayer = 'red';
-    this.updateDelay = 0;
+    this.loopDelay = 0;
     this.running = true;
     this.ace = ace;
     this.persistence = new Persistence;
@@ -47565,45 +47565,49 @@ module.exports = (function() {
     return yielded.value;
   };
 
-  _Class.prototype.update = function() {
-    var active, e, ref, returned, x, y;
+  _Class.prototype.loop = function() {
     if (this.running) {
-      active = this.players[this.activePlayer];
-      if (active.generator) {
-        try {
-          returned = this.iterateGenerator(active);
-        } catch (error) {
-          e = error;
-          console.warn('Bot encounted a runtime error. ', e);
-        }
-      } else {
-        try {
-          returned = active.main(_.clone(this.grid, true));
-        } catch (error) {
-          e = error;
-          console.warn('Bot encounted a runtime error. ', e);
-        }
-      }
-      if (typeof returned === 'function') {
-        active.generator = returned(_.clone(this.grid, true));
-        returned = this.iterateGenerator(active);
-      }
-      if (returned instanceof Hex) {
-        x = returned.x, y = returned.y;
-        ref = [Math.floor(x), Math.floor(y)], x = ref[0], y = ref[1];
-        if (this.grid.place(x, y, this.activePlayer)) {
-          this.swapActivePlayer();
-          if (active.generator) {
-            active.generator.previousSuccesfull = true;
-          }
-        }
-      } else {
-        console.warn('Incorrect Player Return (Not Instance of Hex)');
-      }
+      this.update();
     }
     this.grid.update();
     BotConfig.update(this.ace);
-    return setTimeout(this.update.bind(this), this.updateDelay);
+    return setTimeout(this.loop.bind(this), this.loopDelay);
+  };
+
+  _Class.prototype.update = function() {
+    var active, e, ref, returned, x, y;
+    active = this.players[this.activePlayer];
+    if (active.generator) {
+      try {
+        returned = this.iterateGenerator(active);
+      } catch (error) {
+        e = error;
+        console.warn('Bot encounted a runtime error. ', e);
+      }
+    } else {
+      try {
+        returned = active.main(_.clone(this.grid, true));
+      } catch (error) {
+        e = error;
+        console.warn('Bot encounted a runtime error. ', e);
+      }
+    }
+    if (typeof returned === 'function') {
+      active.generator = returned(_.clone(this.grid, true));
+      returned = this.iterateGenerator(active);
+    }
+    if (returned instanceof Hex) {
+      x = returned.x, y = returned.y;
+      ref = [Math.floor(x), Math.floor(y)], x = ref[0], y = ref[1];
+      if (this.grid.place(x, y, this.activePlayer)) {
+        this.swapActivePlayer();
+        if (active.generator) {
+          return active.generator.previousSuccesfull = true;
+        }
+      }
+    } else {
+      return console.warn('Incorrect Player Return (Not Instance of Hex)');
+    }
   };
 
   return _Class;
@@ -47848,7 +47852,7 @@ engine.ace.setClass(0);
 
 engine.ace.setClass(1);
 
-window.engine.update();
+window.engine.loop();
 
 
 },{"./Brace":9,"./Engine":10,"./Hex":12,"./Player":15}],14:[function(require,module,exports){
