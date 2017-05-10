@@ -47863,7 +47863,7 @@ module.exports = function(grid) {
   grid.prototype.is_red = function(h) {
     return h.value === 'red';
   };
-  grid.prototype.is_red = function(h) {
+  grid.prototype.is_blue = function(h) {
     return h.value === 'blue';
   };
   grid.prototype.all = function() {

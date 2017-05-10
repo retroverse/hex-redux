@@ -16,7 +16,7 @@ module.exports = (grid)->
     h.value is 'red'
 
   #Returns whether a hex is blue
-  grid.prototype.is_red = (h)->
+  grid.prototype.is_blue = (h)->
     h.value is 'blue'
 
   grid.prototype.all = ->
