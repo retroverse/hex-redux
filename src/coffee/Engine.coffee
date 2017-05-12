@@ -22,8 +22,13 @@ module.exports = class
 
   win: (who, hex)->
     if @running
-      console.log "#{who} has won!"
       @running = false
+      console.log "#{who} has won!"
+      $('.title').removeClass "red"
+      $('.title').removeClass "blue"
+      $('.title').addClass "#{who}"
+      $('.title').css("opacity", "0.4")
+        .transition({ opacity: "1"}, 1000);
 
   restart: ->
     @grid.restart()

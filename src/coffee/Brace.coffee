@@ -1,6 +1,3 @@
-#Require Jquery for getting editors
-$ = require 'jquery'
-
 #Require Brace (Browserify Ace)
 ace = require 'brace'
 require('brace/mode/javascript')

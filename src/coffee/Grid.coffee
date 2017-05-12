@@ -1,4 +1,3 @@
-$ = require 'jquery'
 Hex = require './Hex'
 GridProto = require('./lib/Grid')
 

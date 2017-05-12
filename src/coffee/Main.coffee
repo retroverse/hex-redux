@@ -1,3 +1,4 @@
+require('./jQuery')
 Ace = require('./Brace')
 Engine = require('./Engine')
 
