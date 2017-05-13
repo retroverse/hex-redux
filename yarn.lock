@@ -1554,6 +1554,10 @@ hawk@~3.1.3:
     hoek "2.x.x"
     sntp "1.x.x"
 
+heap@0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/heap/-/heap-0.2.5.tgz#713b65590ebcc40fcbeeaf55e851694092b39af1"
+
 hmac-drbg@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -1845,6 +1849,10 @@ jodid25519@^1.0.0:
   resolved "https://registry.yarnpkg.com/jodid25519/-/jodid25519-1.0.2.tgz#06d4912255093419477d425633606e0e90782967"
   dependencies:
     jsbn "~0.1.0"
+
+jquery.transit@^0.9.12:
+  version "0.9.12"
+  resolved "https://registry.yarnpkg.com/jquery.transit/-/jquery.transit-0.9.12.tgz#5b487a37741d99d48469d77a0d68001963263c37"
 
 jquery@^3.2.1:
   version "3.2.1"
@@ -2554,6 +2562,12 @@ path-type@^1.0.0:
     graceful-fs "^4.1.2"
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
+
+pathfinding@retroverse/PathFinding.js:
+  version "0.4.18"
+  resolved "https://codeload.github.com/retroverse/PathFinding.js/tar.gz/dbfce022fd6e3a0495b4b3ae34f181a3587d051f"
+  dependencies:
+    heap "0.2.5"
 
 pbkdf2@^3.0.3:
   version "3.0.9"

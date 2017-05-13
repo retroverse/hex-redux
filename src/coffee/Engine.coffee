@@ -8,7 +8,6 @@ _ = require('lodash')
 module.exports = class
   constructor: (grid_selector, ace)->
     @grid = new Grid grid_selector
-    @grid.win = @win.bind(this)
     @players =
       red: new Player
       blue: new Player
@@ -20,10 +19,32 @@ module.exports = class
     @persistence.init()
     @ace.checkPersistence(@persistence)
 
-  win: (who, hex)->
+  win: (who, path)->
     if @running
-      console.log "#{who} has won!"
       @running = false
+      console.log "#{who} has won!"
+
+      #Title Colour and Flash
+      $('.title').removeClass "red"
+      $('.title').removeClass "blue"
+      $('.title').addClass "#{who}"
+      $('.title').css("opacity", "0.4")
+        .transition({ opacity: "1"}, 1000);
+
+      #Highlight Path
+      $('.hex').addClass 'dim'
+      i = j = 0
+      console.log path
+      for row in $('.hex.row')
+        for hex in $(row).children()
+          h = @grid.state[i][j]
+          for p in path
+            if p[0] is h.x and p[1] is h.y
+              $(hex).removeClass 'dim'
+          i++
+        i = 0
+        j++
+
 
   restart: ->
     @grid.restart()
@@ -37,6 +58,11 @@ module.exports = class
       @activePlayer = 'blue'
     else
       @activePlayer = 'red'
+
+  updateConnectionsAndCheckWin: ->
+    path = @grid.updateConnections(@activePlayer)
+    if path
+      @win @activePlayer, path.shortest
 
   setPlayer: (which, player)->
     @players[which] = new player
@@ -59,7 +85,7 @@ module.exports = class
       @update()
 
     #Update The Grid Visuals
-    @grid.update()
+    @grid.update(@activePlayer)
 
     #Update Bot Configurations
     BotConfig.update @ace
@@ -99,6 +125,7 @@ module.exports = class
 
       #Attempt to take spot, if succesfull swap players
       if @grid.place x, y, @activePlayer
+        @updateConnectionsAndCheckWin()
         @swapActivePlayer()
         #Tell Generator it Worked
         if active.generator

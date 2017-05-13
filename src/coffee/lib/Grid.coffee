@@ -27,14 +27,14 @@ module.exports = (grid)->
     return hexs
 
   #Returns all of a hex's neighbours
-  grid.prototype.neighbours = (x, y)->
+  grid.prototype.neighbours = (h)->
     neighbours = []
     for i in [-1, 0, 1]
       for j in [-1, 0, 1]
         unless (i is 0 and j is 0) or i is j
-          if 0 <= x+i <= 10
-            if 0 <= y+j <= 10
-              neighbours.push this.state[x+i][y+j]
+          if 0 <= h.x+i <= 10
+            if 0 <= h.y+j <= 10
+              neighbours.push this.state[h.x+i][h.y+j]
     return neighbours
 
   #Gets whether two hex's are neighbours
