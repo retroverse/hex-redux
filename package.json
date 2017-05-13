@@ -23,6 +23,7 @@
     "jquery.transit": "^0.9.12",
     "lodash": "^4.17.4",
     "merge": "^1.2.0",
+    "pathfinding": "retroverse/PathFinding.js",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.9.0"
