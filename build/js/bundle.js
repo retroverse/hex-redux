@@ -50855,7 +50855,8 @@ _ = require('lodash');
 
 module.exports = (function() {
   function _Class(grid_selector, ace) {
-    this.grid = new Grid(grid_selector);
+    this.grid = new Grid();
+    this.grid.initDOM(grid_selector);
     this.players = {
       red: new Player,
       blue: new Player
@@ -51021,28 +51022,38 @@ GridProto = require('./lib/Grid');
 GridPathFindingProto = require('./lib/GridPF');
 
 grid = (function() {
-  function _Class(selector, size) {
-    var cell, i, j, k, l, m, n, ref, ref1, ref2, ref3, row;
-    this.size = size != null ? size : 11;
+  function _Class() {
+    var i, j, k, l;
     this.state = [];
-    for (i = k = 0, ref = this.size; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
+    for (i = k = 0; k < 11; i = ++k) {
       this.state[i] = [];
-      for (j = l = 0, ref1 = this.size; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
+      for (j = l = 0; l < 11; j = ++l) {
         this.state[i][j] = new Hex(i, j, {
           value: 'neutral'
         });
       }
     }
     this.initPathFinding();
-    this.root = $(selector);
-    for (i = m = 0, ref2 = this.size; 0 <= ref2 ? m < ref2 : m > ref2; i = 0 <= ref2 ? ++m : --m) {
-      this.root.append(row = $('<div class="hex row"></div>'));
-      for (j = n = 0, ref3 = this.size; 0 <= ref3 ? n < ref3 : n > ref3; j = 0 <= ref3 ? ++n : --n) {
-        row.append(cell = $('<div class="hex cell"></div>'));
-        this.state[j][i].element = cell;
-      }
-    }
   }
+
+  _Class.prototype.initDOM = function(selector) {
+    var cell, i, j, k, results, row;
+    this.root = $(selector);
+    results = [];
+    for (i = k = 0; k < 11; i = ++k) {
+      this.root.append(row = $('<div class="hex row"></div>'));
+      results.push((function() {
+        var l, results1;
+        results1 = [];
+        for (j = l = 0; l < 11; j = ++l) {
+          row.append(cell = $('<div class="hex cell"></div>'));
+          results1.push(this.state[j][i].element = cell);
+        }
+        return results1;
+      }).call(this));
+    }
+    return results;
+  };
 
   _Class.prototype.restart = function() {
     var hex, k, len, ref, results, row;
@@ -51154,6 +51165,8 @@ window.Player = require('./Player');
 
 window.Hex = require('./Hex');
 
+window.Grid = require('./Grid');
+
 engine.ace.setClass(0);
 
 engine.ace.setClass(1);
@@ -51161,7 +51174,7 @@ engine.ace.setClass(1);
 window.engine.loop();
 
 
-},{"./Brace":34,"./Engine":35,"./Hex":37,"./Player":40,"./UIControls":41,"./jQuery":42}],39:[function(require,module,exports){
+},{"./Brace":34,"./Engine":35,"./Grid":36,"./Hex":37,"./Player":40,"./UIControls":41,"./jQuery":42}],39:[function(require,module,exports){
 var Persistence;
 
 Persistence = (function() {

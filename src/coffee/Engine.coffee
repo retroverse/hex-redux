@@ -7,7 +7,8 @@ _ = require('lodash')
 
 module.exports = class
   constructor: (grid_selector, ace)->
-    @grid = new Grid grid_selector
+    @grid = new Grid()
+    @grid.initDOM grid_selector
     @players =
       red: new Player
       blue: new Player

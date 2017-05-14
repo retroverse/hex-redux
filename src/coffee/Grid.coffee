@@ -3,24 +3,25 @@ GridProto = require('./lib/Grid')
 GridPathFindingProto = require('./lib/GridPF')
 
 grid = class
-  constructor: (selector, @size=11)->
+  constructor: ()->
     #Define State
     @state = []
-    for i in [0...@size]
+    for i in [0...11]
       @state[i] = []
-      for j in [0...@size]
+      for j in [0...11]
         @state[i][j] = new Hex i, j, { value: 'neutral' }
 
     #Intialise Path Finding
     @initPathFinding()
 
+  initDOM: (selector)->
     #Get the root node
     @root = $(selector)
 
     #Add rows
-    for i in [0...@size]
+    for i in [0...11]
       @root.append row = $('<div class="hex row"></div>')
-      for j in [0...@size]
+      for j in [0...11]
         row.append cell = $('<div class="hex cell"></div>')
         @state[j][i].element = cell
 
