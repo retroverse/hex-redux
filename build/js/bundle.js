@@ -50695,7 +50695,7 @@ module.exports = {
 
 
 },{"jquery":8}],34:[function(require,module,exports){
-var ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, len, len1, ref, ref1, setClass;
+var ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, l, len, len1, len2, ref, ref1, ref2, setClass;
 
 ace = require('brace');
 
@@ -50740,6 +50740,41 @@ for (k = 0, len1 = ref1.length; k < len1; k++) {
   });
 }
 
+ref2 = $('.editorreset');
+for (l = 0, len2 = ref2.length; l < len2; l++) {
+  button = ref2[l];
+  $(button).click(function(arg) {
+    var len3, len4, m, n, ref3, ref4, results, target, v;
+    target = arg.target;
+    if ($(target).hasClass('red')) {
+      engine.persistence.clear('red');
+      ref3 = engine.ace.editors;
+      for (i = m = 0, len3 = ref3.length; m < len3; i = ++m) {
+        editor = ref3[i];
+        v = defaultbot;
+        if (i === 0) {
+          editor.setValue(v, -1);
+        }
+      }
+    }
+    if ($(target).hasClass('blue')) {
+      engine.persistence.save('blue');
+      ref4 = engine.ace.editors;
+      results = [];
+      for (i = n = 0, len4 = ref4.length; n < len4; i = ++n) {
+        editor = ref4[i];
+        v = defaultbot.replace("Red", "Blue");
+        if (i === 1) {
+          results.push(editor.setValue(v, -1));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    }
+  });
+}
+
 setClass = function(i) {
   var cl, col;
   cl = this.getClass(i);
@@ -50750,11 +50785,11 @@ setClass = function(i) {
 };
 
 checkPersistence = function(persistence) {
-  var l, len2, ref2, results;
-  ref2 = this.editors;
+  var len3, m, ref3, results;
+  ref3 = this.editors;
   results = [];
-  for (i = l = 0, len2 = ref2.length; l < len2; i = ++l) {
-    e = ref2[i];
+  for (i = m = 0, len3 = ref3.length; m < len3; i = ++m) {
+    e = ref3[i];
     if (persistence.get(i)) {
       results.push(e.setValue(persistence.get(i), -1));
     } else {
@@ -51152,10 +51187,18 @@ Persistence = (function() {
     return this.available = this.getAvailable('localStorage');
   };
 
-  Persistence.prototype.clear = function() {
+  Persistence.prototype.clear = function(which) {
     if (this.available) {
-      localStorage.removeItem('hex-bot-red');
-      return localStorage.removeItem('hex-bot-blue');
+      if (which === 'red') {
+        localStorage.removeItem('hex-bot-red');
+        return;
+      }
+      if (which === 'blue') {
+        localStorage.removeItem('hex-bot-blue');
+        return;
+      }
+      localStorage.removeItem('hex-bot-blue');
+      return localStorage.removeItem('hex-bot-red');
     }
   };
 

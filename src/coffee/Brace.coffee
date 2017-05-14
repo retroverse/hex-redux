@@ -44,6 +44,20 @@ for button in $ '.editorapply'
       engine.persistence.save(1, engine.ace)
       engine.ace.setClass(1)
 
+#Setup reset buttons
+for button in $ '.editorreset'
+  $(button).click ({target})->
+    if $(target).hasClass 'red'
+      engine.persistence.clear('red')
+      for editor, i in engine.ace.editors
+        v = defaultbot
+        if i is 0 then editor.setValue(v, -1)
+    if $(target).hasClass 'blue'
+      engine.persistence.save('blue')
+      for editor, i in engine.ace.editors
+        v = defaultbot.replace("Red", "Blue")
+        if i is 1 then editor.setValue(v, -1)
+
 setClass = (i)->
   cl = this.getClass(i)
   if cl
