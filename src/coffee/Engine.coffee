@@ -14,14 +14,17 @@ module.exports = class
     @activePlayer = 'red'
     @loopDelay = 0
     @running = true
+    @won = false
+    @autorestart = false
     @ace = ace
+
     @persistence = new Persistence
     @persistence.init()
     @ace.checkPersistence(@persistence)
 
   win: (who, path)->
-    if @running
-      @running = false
+    unless @won
+      @won = true
       console.log "#{who} has won!"
 
       #Title Colour and Flash
@@ -34,7 +37,6 @@ module.exports = class
       #Highlight Path
       $('.hex').addClass 'dim'
       i = j = 0
-      console.log path
       for row in $('.hex.row')
         for hex in $(row).children()
           h = @grid.state[i][j]
@@ -45,10 +47,14 @@ module.exports = class
         i = 0
         j++
 
+      #Automatically Restart the game
+      if @autorestart
+        @restart()
+
 
   restart: ->
     @grid.restart()
-    @running = true
+    @won = false
     @resetPlayer('red')
     @resetPlayer('blue')
     @activePlayer = 'red'
@@ -81,7 +87,7 @@ module.exports = class
     return yielded.value
 
   loop: ->
-    if @running
+    if @running and not @won
       @update()
 
     #Update The Grid Visuals

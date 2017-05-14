@@ -50828,6 +50828,8 @@ module.exports = (function() {
     this.activePlayer = 'red';
     this.loopDelay = 0;
     this.running = true;
+    this.won = false;
+    this.autorestart = false;
     this.ace = ace;
     this.persistence = new Persistence;
     this.persistence.init();
@@ -50835,9 +50837,9 @@ module.exports = (function() {
   }
 
   _Class.prototype.win = function(who, path) {
-    var h, hex, i, j, k, l, len, len1, len2, m, p, ref, ref1, results, row;
-    if (this.running) {
-      this.running = false;
+    var h, hex, i, j, k, l, len, len1, len2, m, p, ref, ref1, row;
+    if (!this.won) {
+      this.won = true;
       console.log(who + " has won!");
       $('.title').removeClass("red");
       $('.title').removeClass("blue");
@@ -50847,9 +50849,7 @@ module.exports = (function() {
       }, 1000);
       $('.hex').addClass('dim');
       i = j = 0;
-      console.log(path);
       ref = $('.hex.row');
-      results = [];
       for (k = 0, len = ref.length; k < len; k++) {
         row = ref[k];
         ref1 = $(row).children();
@@ -50865,15 +50865,17 @@ module.exports = (function() {
           i++;
         }
         i = 0;
-        results.push(j++);
+        j++;
       }
-      return results;
+      if (this.autorestart) {
+        return this.restart();
+      }
     }
   };
 
   _Class.prototype.restart = function() {
     this.grid.restart();
-    this.running = true;
+    this.won = false;
     this.resetPlayer('red');
     this.resetPlayer('blue');
     return this.activePlayer = 'red';
@@ -50917,7 +50919,7 @@ module.exports = (function() {
   };
 
   _Class.prototype.loop = function() {
-    if (this.running) {
+    if (this.running && !this.won) {
       this.update();
     }
     this.grid.update(this.activePlayer);
@@ -51071,7 +51073,7 @@ GridPathFindingProto(grid);
 module.exports = grid;
 
 
-},{"./Hex":37,"./lib/Grid":42,"./lib/GridPF":43}],37:[function(require,module,exports){
+},{"./Hex":37,"./lib/Grid":43,"./lib/GridPF":44}],37:[function(require,module,exports){
 module.exports = (function() {
   function _Class(x, y, arg) {
     this.x = x;
@@ -51095,6 +51097,8 @@ var Ace, Engine;
 
 require('./jQuery');
 
+require('./UIControls');
+
 Ace = require('./Brace');
 
 Engine = require('./Engine');
@@ -51114,7 +51118,7 @@ engine.ace.setClass(1);
 window.engine.loop();
 
 
-},{"./Brace":34,"./Engine":35,"./Hex":37,"./Player":40,"./jQuery":41}],39:[function(require,module,exports){
+},{"./Brace":34,"./Engine":35,"./Hex":37,"./Player":40,"./UIControls":41,"./jQuery":42}],39:[function(require,module,exports){
 var Persistence;
 
 Persistence = (function() {
@@ -51194,12 +51198,46 @@ module.exports = (function() {
 
 
 },{}],41:[function(require,module,exports){
+$('#TogglePlay').click(function(arg) {
+  var target;
+  target = arg.target;
+  if ($(target).html() === 'play_arrow') {
+    $(target).html('pause');
+    return engine.running = true;
+  } else {
+    $(target).html('play_arrow');
+    return engine.running = false;
+  }
+});
+
+$('#Step').click(function(arg) {
+  var target;
+  target = arg.target;
+  if (!(engine.running || engine.won)) {
+    return engine.update();
+  }
+});
+
+$('#AutoRestart').click(function(arg) {
+  var target;
+  target = arg.target;
+  if ($(target).hasClass('checked')) {
+    $(target).removeClass('checked');
+    return engine.autorestart = false;
+  } else {
+    $(target).addClass('checked');
+    return engine.autorestart = true;
+  }
+});
+
+
+},{}],42:[function(require,module,exports){
 window.jQuery = window.$ = require('jquery');
 
 require('jquery.transit');
 
 
-},{"jquery":8,"jquery.transit":7}],42:[function(require,module,exports){
+},{"jquery":8,"jquery.transit":7}],43:[function(require,module,exports){
 module.exports = function(grid) {
   grid.prototype.get = function(x, y) {
     var hex;
@@ -51281,7 +51319,7 @@ module.exports = function(grid) {
 };
 
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var Pathfinding;
 
 Pathfinding = require('pathfinding');

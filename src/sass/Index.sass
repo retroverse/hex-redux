@@ -6,24 +6,24 @@
 @import "./Editor"
 @import "./Title"
 @import "./Glyph"
+@import "./Controls"
 
 .container
   margin: auto
-  margin-top: 0px
+  margin-top: 20px
   height: min-content
 
+  $size: 70
+
   @media (orientation:portrait)
-    width: 80vw
+    width: #{$size}vw
 
   @media (orientation:landscape)
-    width: 80vh
+    width: #{$size}vh
 
   .square
-    padding-top: 20px
-    margin-top: 5%
-
     @media (orientation:portrait)
-      height: 80vw
+      height: #{$size}vw
 
     @media (orientation:landscape)
-      height: 80vh
+      height: #{$size}vh

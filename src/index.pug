@@ -8,19 +8,24 @@ html
     title Hex-Redux
   body
     .container
-      .square
+      .topbar
         h1.title(style="float: left;") Hex
         span.titletag BETA
         .glyph.spin.last(onclick="engine.restart()")
           .material-icons replay
+      .controls
+        button.material-icons#TogglePlay pause
+        button.material-icons#Step skip_next
+        button.material-icons.toggle#AutoRestart autorenew
+      .square
         #hex-grid
-      .editor
-        h3.editortitle.red Player 1
-        .editortext
-        button.editorapply.red Apply
-      .editor
-        h3.editortitle.blue Player 2
-        .editortext
-        button.editorapply.blue Apply
+        .editor
+          h3.editortitle.red Player 1
+          .editortext
+          button.editorapply.red Apply
+        .editor
+          h3.editortitle.blue Player 2
+          .editortext
+          button.editorapply.blue Apply
   footer
     script(src="js/bundle.js")

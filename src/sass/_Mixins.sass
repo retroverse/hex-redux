@@ -8,7 +8,7 @@
   &:hover
     background-color: $darker-grey
 
-  &:active
+  &:active, &.checked
     background-color: $font-col
     color: $light-grey
 
@@ -23,8 +23,11 @@
     color: $hex-blue
 
 //Applications
+.label
+  +label
 
 button
   +button
   width: 100px
   height: 30px
+  color: $font-col
