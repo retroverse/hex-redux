@@ -5,7 +5,7 @@ module.exports =
     for editor, i in ace.editors
       title = $ ".editortitle.#{editor.colour}"
       text = editor.getValue()
-      name = text.replace(/class\s+(.*)\s+extends[\s\S]*/, "$1")
+      name = text.replace(/[\s\S]*class\s+(.*)\s+extends[\s\S]*/, "$1")
       if text isnt name and not /$\s*^/.test name
         title.html name
       else
