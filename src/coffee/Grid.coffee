@@ -21,15 +21,14 @@ grid = class
     for i in [0...@size]
       @root.append row = $('<div class="hex row"></div>')
       for j in [0...@size]
-        row.append col = $('<div class="hex cell"></div>')
+        row.append cell = $('<div class="hex cell"></div>')
+        @state[i][j].element = cell
 
   restart: ->
-    $('.hex').removeClass 'dim'
-    @state = []
-    for i in [0...@size]
-      @state[i] = []
-      for j in [0...@size]
-        @state[i][j] = new Hex i, j, { value: 'neutral' }
+    for row in @state
+      for hex in row
+        hex.value = 'neutral'
+        $(hex.element).transition({opacity: "1"}, 200)
 
   place: (x, y, val)->
     unless 0<=x<=10 and 0<=y<=10
@@ -50,14 +49,9 @@ grid = class
     $('.hex.cell').removeClass('red')
     $('.hex.cell').removeClass('blue')
 
-    i = j = 0
-    for row in $('.hex.row')
-      for hex in $(row).children()
-        value = @state[i][j].value
-        $(hex).addClass(value)
-        i++
-      i = 0
-      j++
+    for row in @state
+      for hex in row
+        $(hex.element).addClass(hex.value)
 
 #Prototype
 GridProto(grid)

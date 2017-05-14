@@ -32,24 +32,29 @@ module.exports = class
       $('.title').removeClass "blue"
       $('.title').addClass "#{who}"
       $('.title').css("opacity", "0.4")
-        .transition({ opacity: "1"}, 1000);
+        .transition({ opacity: "1"}, 1000)
 
-      #Highlight Path
-      $('.hex').addClass 'dim'
-      i = j = 0
-      for row in $('.hex.row')
-        for hex in $(row).children()
-          h = @grid.state[i][j]
+      #First ensure that grid is up-to-date
+      @grid.update()
+
+      #Get path hexs
+      pathHexs = []
+      for row in @grid.state
+        for hex in row
           for p in path
-            if p[0] is h.x and p[1] is h.y
-              $(hex).removeClass 'dim'
-          i++
-        i = 0
-        j++
+            if p[0] is hex.x and p[1] is hex.y
+              pathHexs.push hex
+
+      #Dim non-path hex's
+      for row in @grid.state
+        for hex in row
+          unless pathHexs.includes hex
+            $(hex.element).transition({ opacity: ".4"}, 350)
+
 
       #Automatically Restart the game
       if @autorestart
-        @restart()
+        setTimeout @restart.bind(this), 400
 
 
   restart: ->
@@ -91,7 +96,7 @@ module.exports = class
       @update()
 
     #Update The Grid Visuals
-    @grid.update(@activePlayer)
+    @grid.update()
 
     #Update Bot Configurations
     BotConfig.update @ace

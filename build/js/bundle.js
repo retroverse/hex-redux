@@ -50837,7 +50837,7 @@ module.exports = (function() {
   }
 
   _Class.prototype.win = function(who, path) {
-    var h, hex, i, j, k, l, len, len1, len2, m, p, ref, ref1, row;
+    var hex, i, j, k, l, len, len1, len2, len3, len4, m, p, pathHexs, ref, ref1, row;
     if (!this.won) {
       this.won = true;
       console.log(who + " has won!");
@@ -50847,28 +50847,35 @@ module.exports = (function() {
       $('.title').css("opacity", "0.4").transition({
         opacity: "1"
       }, 1000);
-      $('.hex').addClass('dim');
-      i = j = 0;
-      ref = $('.hex.row');
-      for (k = 0, len = ref.length; k < len; k++) {
-        row = ref[k];
-        ref1 = $(row).children();
-        for (l = 0, len1 = ref1.length; l < len1; l++) {
-          hex = ref1[l];
-          h = this.grid.state[i][j];
-          for (m = 0, len2 = path.length; m < len2; m++) {
-            p = path[m];
-            if (p[0] === h.x && p[1] === h.y) {
-              $(hex).removeClass('dim');
+      this.grid.update();
+      pathHexs = [];
+      ref = this.grid.state;
+      for (i = 0, len = ref.length; i < len; i++) {
+        row = ref[i];
+        for (j = 0, len1 = row.length; j < len1; j++) {
+          hex = row[j];
+          for (k = 0, len2 = path.length; k < len2; k++) {
+            p = path[k];
+            if (p[0] === hex.x && p[1] === hex.y) {
+              pathHexs.push(hex);
             }
           }
-          i++;
         }
-        i = 0;
-        j++;
+      }
+      ref1 = this.grid.state;
+      for (l = 0, len3 = ref1.length; l < len3; l++) {
+        row = ref1[l];
+        for (m = 0, len4 = row.length; m < len4; m++) {
+          hex = row[m];
+          if (!pathHexs.includes(hex)) {
+            $(hex.element).transition({
+              opacity: ".4"
+            }, 350);
+          }
+        }
       }
       if (this.autorestart) {
-        return this.restart();
+        return setTimeout(this.restart.bind(this), 400);
       }
     }
   };
@@ -50922,7 +50929,7 @@ module.exports = (function() {
     if (this.running && !this.won) {
       this.update();
     }
-    this.grid.update(this.activePlayer);
+    this.grid.update();
     BotConfig.update(this.ace);
     return setTimeout(this.loop.bind(this), this.loopDelay);
   };
@@ -50980,7 +50987,7 @@ GridPathFindingProto = require('./lib/GridPF');
 
 grid = (function() {
   function _Class(selector, size) {
-    var col, i, j, k, l, m, n, ref, ref1, ref2, ref3, row;
+    var cell, i, j, k, l, m, n, ref, ref1, ref2, ref3, row;
     this.size = size != null ? size : 11;
     this.state = [];
     for (i = k = 0, ref = this.size; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
@@ -50996,28 +51003,30 @@ grid = (function() {
     for (i = m = 0, ref2 = this.size; 0 <= ref2 ? m < ref2 : m > ref2; i = 0 <= ref2 ? ++m : --m) {
       this.root.append(row = $('<div class="hex row"></div>'));
       for (j = n = 0, ref3 = this.size; 0 <= ref3 ? n < ref3 : n > ref3; j = 0 <= ref3 ? ++n : --n) {
-        row.append(col = $('<div class="hex cell"></div>'));
+        row.append(cell = $('<div class="hex cell"></div>'));
+        this.state[i][j].element = cell;
       }
     }
   }
 
   _Class.prototype.restart = function() {
-    var i, j, k, ref, results;
-    $('.hex').removeClass('dim');
-    this.state = [];
+    var hex, k, len, ref, results, row;
+    ref = this.state;
     results = [];
-    for (i = k = 0, ref = this.size; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
-      this.state[i] = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      row = ref[k];
       results.push((function() {
-        var l, ref1, results1;
+        var l, len1, results1;
         results1 = [];
-        for (j = l = 0, ref1 = this.size; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
-          results1.push(this.state[i][j] = new Hex(i, j, {
-            value: 'neutral'
-          }));
+        for (l = 0, len1 = row.length; l < len1; l++) {
+          hex = row[l];
+          hex.value = 'neutral';
+          results1.push($(hex.element).transition({
+            opacity: "1"
+          }, 200));
         }
         return results1;
-      }).call(this));
+      })());
     }
     return results;
   };
@@ -51040,24 +51049,23 @@ grid = (function() {
   };
 
   _Class.prototype.update = function(which) {
-    var hex, i, j, k, l, len, len1, ref, ref1, results, row, value;
+    var hex, k, len, ref, results, row;
     $('.hex.cell').removeClass('neutral');
     $('.hex.cell').removeClass('red');
     $('.hex.cell').removeClass('blue');
-    i = j = 0;
-    ref = $('.hex.row');
+    ref = this.state;
     results = [];
     for (k = 0, len = ref.length; k < len; k++) {
       row = ref[k];
-      ref1 = $(row).children();
-      for (l = 0, len1 = ref1.length; l < len1; l++) {
-        hex = ref1[l];
-        value = this.state[i][j].value;
-        $(hex).addClass(value);
-        i++;
-      }
-      i = 0;
-      results.push(j++);
+      results.push((function() {
+        var l, len1, results1;
+        results1 = [];
+        for (l = 0, len1 = row.length; l < len1; l++) {
+          hex = row[l];
+          results1.push($(hex.element).addClass(hex.value));
+        }
+        return results1;
+      })());
     }
     return results;
   };
