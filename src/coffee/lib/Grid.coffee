@@ -1,24 +1,33 @@
 module.exports = (grid)->
   #Gets a hex from a set point
   grid.prototype.get = (x, y)->
+    if x instanceof Hex then return x
     hex = this.state[x][y]
     if hex
       return hex
 
   #Returns whether a hex is empty
-  grid.prototype.is_empty = (h)->
+  grid.prototype.is_empty =
+  grid.prototype.is_neutral = (h, y)->
+    if this instanceof Grid then h = this.get(h, y)
     h.value is 'neutral'
 
-  grid.prototype.is_neutral = grid.prototype.is_empty
+  #Returns whether a hex is empty
+  grid.prototype.is_taken = (h, y)->
+    if this instanceof Grid then h = this.get(h, y)
+    h.value isnt 'neutral'
 
   #Returns whether a hex is red
-  grid.prototype.is_red = (h)->
+  grid.prototype.is_red = (h, y)->
+    if this instanceof Grid then h = this.get(h, y)
     h.value is 'red'
 
   #Returns whether a hex is blue
-  grid.prototype.is_blue = (h)->
+  grid.prototype.is_blue = (h, y)->
+    if this instanceof Grid then h = this.get(h, y)
     h.value is 'blue'
 
+  #Returns every hex in the grid
   grid.prototype.all = ->
     hexs = []
     for column in this.state

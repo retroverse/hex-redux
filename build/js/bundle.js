@@ -50699,7 +50699,7 @@ module.exports = {
       editor = ref[i];
       title = $(".editortitle." + editor.colour);
       text = editor.getValue();
-      name = text.replace(/class\s+(.*)\s+extends[\s\S]*/, "$1");
+      name = text.replace(/[\s\S]*class\s+(.*)\s+extends[\s\S]*/, "$1");
       if (text !== name && !/$\s*^/.test(name)) {
         results.push(title.html(name));
       } else {
@@ -51304,19 +51304,36 @@ require('jquery.transit');
 module.exports = function(grid) {
   grid.prototype.get = function(x, y) {
     var hex;
+    if (x instanceof Hex) {
+      return x;
+    }
     hex = this.state[x][y];
     if (hex) {
       return hex;
     }
   };
-  grid.prototype.is_empty = function(h) {
+  grid.prototype.is_empty = grid.prototype.is_neutral = function(h, y) {
+    if (this instanceof Grid) {
+      h = this.get(h, y);
+    }
     return h.value === 'neutral';
   };
-  grid.prototype.is_neutral = grid.prototype.is_empty;
-  grid.prototype.is_red = function(h) {
+  grid.prototype.is_taken = function(h, y) {
+    if (this instanceof Grid) {
+      h = this.get(h, y);
+    }
+    return h.value !== 'neutral';
+  };
+  grid.prototype.is_red = function(h, y) {
+    if (this instanceof Grid) {
+      h = this.get(h, y);
+    }
     return h.value === 'red';
   };
-  grid.prototype.is_blue = function(h) {
+  grid.prototype.is_blue = function(h, y) {
+    if (this instanceof Grid) {
+      h = this.get(h, y);
+    }
     return h.value === 'blue';
   };
   grid.prototype.all = function() {
