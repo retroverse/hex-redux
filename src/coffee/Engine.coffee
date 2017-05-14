@@ -10,8 +10,8 @@ module.exports = class
     @grid = new Grid()
     @grid.initDOM grid_selector
     @bots =
-      red: new Bot
-      blue: new Bot
+      red: new Bot 'red'
+      blue: new Bot 'blue'
     @activeBot = 'red'
     @loopDelay = 0
     @running = true
@@ -77,10 +77,10 @@ module.exports = class
       @win @activeBot, path.shortest
 
   setBot: (which, bot)->
-    @bots[which] = new bot
+    @bots[which] = new bot which
 
   resetBot: (which)->
-    @bots[which] = new @bots[which].constructor
+    @bots[which] = new @bots[which].constructor which
 
   iterateGenerator: (active)->
     yielded = active.generator.next({

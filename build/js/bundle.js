@@ -50667,7 +50667,8 @@ function get_blob() {
 
 },{}],33:[function(require,module,exports){
 module.exports = (function() {
-  function _Class() {
+  function _Class(colour) {
+    this.colour = colour;
     this.init();
   }
 
@@ -50875,8 +50876,8 @@ module.exports = (function() {
     this.grid = new Grid();
     this.grid.initDOM(grid_selector);
     this.bots = {
-      red: new Bot,
-      blue: new Bot
+      red: new Bot('red'),
+      blue: new Bot('blue')
     };
     this.activeBot = 'red';
     this.loopDelay = 0;
@@ -50958,11 +50959,11 @@ module.exports = (function() {
   };
 
   _Class.prototype.setBot = function(which, bot) {
-    return this.bots[which] = new bot;
+    return this.bots[which] = new bot(which);
   };
 
   _Class.prototype.resetBot = function(which) {
-    return this.bots[which] = new this.bots[which].constructor;
+    return this.bots[which] = new this.bots[which].constructor(which);
   };
 
   _Class.prototype.iterateGenerator = function(active) {
