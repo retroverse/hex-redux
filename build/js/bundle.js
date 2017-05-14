@@ -50666,6 +50666,25 @@ function get_blob() {
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{}],33:[function(require,module,exports){
+module.exports = (function() {
+  function _Class() {
+    this.init();
+  }
+
+  _Class.prototype.init = function() {};
+
+  _Class.prototype.main = function(grid) {
+    return null;
+  };
+
+  _Class.prototype.generator = null;
+
+  return _Class;
+
+})();
+
+
+},{}],34:[function(require,module,exports){
 var $;
 
 $ = require('jquery');
@@ -50694,7 +50713,7 @@ module.exports = {
 };
 
 
-},{"jquery":8}],34:[function(require,module,exports){
+},{"jquery":8}],35:[function(require,module,exports){
 var ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, l, len, len1, len2, ref, ref1, ref2, setClass;
 
 ace = require('brace');
@@ -50703,7 +50722,7 @@ require('brace/mode/javascript');
 
 require('brace/theme/dawn');
 
-defaultbot = "class RedBot extends Player {\n    main(grid) {\n        return new Hex(\n            Math.random()*11,\n            Math.random()*11\n        )\n    }\n}";
+defaultbot = "class RedBot extends Bot {\n    main(grid) {\n        return new Hex(\n            Math.random()*11,\n            Math.random()*11\n        )\n    }\n}";
 
 editors = [];
 
@@ -50744,7 +50763,7 @@ ref2 = $('.editorreset');
 for (l = 0, len2 = ref2.length; l < len2; l++) {
   button = ref2[l];
   $(button).click(function(arg) {
-    var len3, len4, m, n, ref3, ref4, results, target, v;
+    var len3, len4, m, n, ref3, ref4, target, v;
     target = arg.target;
     if ($(target).hasClass('red')) {
       engine.persistence.clear('red');
@@ -50756,21 +50775,19 @@ for (l = 0, len2 = ref2.length; l < len2; l++) {
           editor.setValue(v, -1);
         }
       }
+      engine.ace.setClass(0);
     }
     if ($(target).hasClass('blue')) {
-      engine.persistence.save('blue');
+      engine.persistence.clear('blue');
       ref4 = engine.ace.editors;
-      results = [];
       for (i = n = 0, len4 = ref4.length; n < len4; i = ++n) {
         editor = ref4[i];
         v = defaultbot.replace("Red", "Blue");
         if (i === 1) {
-          results.push(editor.setValue(v, -1));
-        } else {
-          results.push(void 0);
+          editor.setValue(v, -1);
         }
       }
-      return results;
+      return engine.ace.setClass(1);
     }
   });
 }
@@ -50780,7 +50797,7 @@ setClass = function(i) {
   cl = this.getClass(i);
   if (cl) {
     col = i === 0 ? 'red' : 'blue';
-    return engine.setPlayer(col, cl);
+    return engine.setBot(col, cl);
   }
 };
 
@@ -50820,13 +50837,13 @@ getClass = function(i) {
       console.warn(e);
       return;
     }
-    if (test instanceof Player) {
+    if (test instanceof Bot) {
       return ret;
     } else {
-      return console.warn('Invalid Bot (Must be instance of \'Player\')');
+      return console.warn('Invalid Bot (Must be instance of \'Bot\')');
     }
   } else {
-    return console.warn('Invalid Bot (Must be a class extending \'Player\')');
+    return console.warn('Invalid Bot (Must be a class extending \'Bot\')');
   }
 };
 
@@ -50838,14 +50855,14 @@ module.exports = {
 };
 
 
-},{"brace":1,"brace/mode/javascript":2,"brace/theme/dawn":3}],35:[function(require,module,exports){
-var BotConfig, Grid, Hex, Persistence, Player, _;
+},{"brace":1,"brace/mode/javascript":2,"brace/theme/dawn":3}],36:[function(require,module,exports){
+var Bot, BotConfig, Grid, Hex, Persistence, _;
 
 BotConfig = require('./BotConfig');
 
 Grid = require('./Grid');
 
-Player = require('./Player');
+Bot = require('./Bot');
 
 Hex = require('./Hex');
 
@@ -50857,11 +50874,11 @@ module.exports = (function() {
   function _Class(grid_selector, ace) {
     this.grid = new Grid();
     this.grid.initDOM(grid_selector);
-    this.players = {
-      red: new Player,
-      blue: new Player
+    this.bots = {
+      red: new Bot,
+      blue: new Bot
     };
-    this.activePlayer = 'red';
+    this.activeBot = 'red';
     this.loopDelay = 0;
     this.running = true;
     this.won = false;
@@ -50919,33 +50936,33 @@ module.exports = (function() {
   _Class.prototype.restart = function() {
     this.grid.restart();
     this.won = false;
-    this.resetPlayer('red');
-    this.resetPlayer('blue');
-    return this.activePlayer = 'red';
+    this.resetBot('red');
+    this.resetBot('blue');
+    return this.activeBot = 'red';
   };
 
-  _Class.prototype.swapActivePlayer = function() {
-    if (this.activePlayer === 'red') {
-      return this.activePlayer = 'blue';
+  _Class.prototype.swapActiveBot = function() {
+    if (this.activeBot === 'red') {
+      return this.activeBot = 'blue';
     } else {
-      return this.activePlayer = 'red';
+      return this.activeBot = 'red';
     }
   };
 
   _Class.prototype.updateConnectionsAndCheckWin = function() {
     var path;
-    path = this.grid.updateConnections(this.activePlayer);
+    path = this.grid.updateConnections(this.activeBot);
     if (path) {
-      return this.win(this.activePlayer, path.shortest);
+      return this.win(this.activeBot, path.shortest);
     }
   };
 
-  _Class.prototype.setPlayer = function(which, player) {
-    return this.players[which] = new player;
+  _Class.prototype.setBot = function(which, bot) {
+    return this.bots[which] = new bot;
   };
 
-  _Class.prototype.resetPlayer = function(which) {
-    return this.players[which] = new this.players[which].constructor;
+  _Class.prototype.resetBot = function(which) {
+    return this.bots[which] = new this.bots[which].constructor;
   };
 
   _Class.prototype.iterateGenerator = function(active) {
@@ -50972,7 +50989,7 @@ module.exports = (function() {
 
   _Class.prototype.update = function() {
     var active, e, ref, returned, x, y;
-    active = this.players[this.activePlayer];
+    active = this.bots[this.activeBot];
     if (active.generator) {
       try {
         returned = this.iterateGenerator(active);
@@ -50995,15 +51012,15 @@ module.exports = (function() {
     if (returned instanceof Hex) {
       x = returned.x, y = returned.y;
       ref = [Math.floor(x), Math.floor(y)], x = ref[0], y = ref[1];
-      if (this.grid.place(x, y, this.activePlayer)) {
+      if (this.grid.place(x, y, this.activeBot)) {
         this.updateConnectionsAndCheckWin();
-        this.swapActivePlayer();
+        this.swapActiveBot();
         if (active.generator) {
           return active.generator.previousSuccesfull = true;
         }
       }
     } else {
-      return console.warn('Incorrect Player Return (Not Instance of Hex)');
+      return console.warn('Incorrect Bot Return (Not Instance of Hex)');
     }
   };
 
@@ -51012,7 +51029,7 @@ module.exports = (function() {
 })();
 
 
-},{"./BotConfig":33,"./Grid":36,"./Hex":37,"./Persistence":39,"./Player":40,"lodash":9}],36:[function(require,module,exports){
+},{"./Bot":33,"./BotConfig":34,"./Grid":37,"./Hex":38,"./Persistence":40,"lodash":9}],37:[function(require,module,exports){
 var GridPathFindingProto, GridProto, Hex, grid;
 
 Hex = require('./Hex');
@@ -51127,7 +51144,7 @@ GridPathFindingProto(grid);
 module.exports = grid;
 
 
-},{"./Hex":37,"./lib/Grid":43,"./lib/GridPF":44}],37:[function(require,module,exports){
+},{"./Hex":38,"./lib/Grid":43,"./lib/GridPF":44}],38:[function(require,module,exports){
 module.exports = (function() {
   function _Class(x, y, arg) {
     this.x = x;
@@ -51146,7 +51163,7 @@ module.exports = (function() {
 })();
 
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var Ace, Engine;
 
 require('./jQuery');
@@ -51161,7 +51178,7 @@ if (!window.engine) {
   window.engine = new Engine('#hex-grid', Ace);
 }
 
-window.Player = require('./Player');
+window.Bot = require('./Bot');
 
 window.Hex = require('./Hex');
 
@@ -51174,7 +51191,7 @@ engine.ace.setClass(1);
 window.engine.loop();
 
 
-},{"./Brace":34,"./Engine":35,"./Grid":36,"./Hex":37,"./Player":40,"./UIControls":41,"./jQuery":42}],39:[function(require,module,exports){
+},{"./Bot":33,"./Brace":35,"./Engine":36,"./Grid":37,"./Hex":38,"./UIControls":41,"./jQuery":42}],40:[function(require,module,exports){
 var Persistence;
 
 Persistence = (function() {
@@ -51240,25 +51257,6 @@ Persistence = (function() {
 })();
 
 module.exports = Persistence;
-
-
-},{}],40:[function(require,module,exports){
-module.exports = (function() {
-  function _Class() {
-    this.init();
-  }
-
-  _Class.prototype.init = function() {};
-
-  _Class.prototype.main = function(grid) {
-    return null;
-  };
-
-  _Class.prototype.generator = null;
-
-  return _Class;
-
-})();
 
 
 },{}],41:[function(require,module,exports){
@@ -51450,6 +51448,6 @@ module.exports = function(grid) {
 };
 
 
-},{"pathfinding":10}]},{},[38])
+},{"pathfinding":10}]},{},[39])
 
 //# sourceMappingURL=bundle.js.map

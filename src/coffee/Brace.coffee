@@ -5,7 +5,7 @@ require('brace/theme/dawn')
 
 #Default Bot
 defaultbot = """
-    class RedBot extends Player {
+    class RedBot extends Bot {
         main(grid) {
             return new Hex(
                 Math.random()*11,
@@ -52,17 +52,19 @@ for button in $ '.editorreset'
       for editor, i in engine.ace.editors
         v = defaultbot
         if i is 0 then editor.setValue(v, -1)
+      engine.ace.setClass(0)
     if $(target).hasClass 'blue'
-      engine.persistence.save('blue')
+      engine.persistence.clear('blue')
       for editor, i in engine.ace.editors
         v = defaultbot.replace("Red", "Blue")
         if i is 1 then editor.setValue(v, -1)
+      engine.ace.setClass(1)
 
 setClass = (i)->
   cl = this.getClass(i)
   if cl
     col = if i is 0 then 'red' else 'blue'
-    engine.setPlayer(col, cl)
+    engine.setBot(col, cl)
 
 checkPersistence = (persistence)->
   for e, i in this.editors
@@ -88,12 +90,12 @@ getClass = (i)->
       console.warn "Error instantiating Bot"
       console.warn e
       return
-    if test instanceof Player
+    if test instanceof Bot
       return ret
     else
-      console.warn 'Invalid Bot (Must be instance of \'Player\')'
+      console.warn 'Invalid Bot (Must be instance of \'Bot\')'
   else
-    console.warn 'Invalid Bot (Must be a class extending \'Player\')'
+    console.warn 'Invalid Bot (Must be a class extending \'Bot\')'
 
 module.exports = {
   editors,
