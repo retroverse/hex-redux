@@ -51004,7 +51004,7 @@ grid = (function() {
       this.root.append(row = $('<div class="hex row"></div>'));
       for (j = n = 0, ref3 = this.size; 0 <= ref3 ? n < ref3 : n > ref3; j = 0 <= ref3 ? ++n : --n) {
         row.append(cell = $('<div class="hex cell"></div>'));
-        this.state[i][j].element = cell;
+        this.state[j][i].element = cell;
       }
     }
   }

@@ -22,7 +22,7 @@ grid = class
       @root.append row = $('<div class="hex row"></div>')
       for j in [0...@size]
         row.append cell = $('<div class="hex cell"></div>')
-        @state[i][j].element = cell
+        @state[j][i].element = cell
 
   restart: ->
     for row in @state
