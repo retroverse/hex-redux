@@ -1,5 +1,6 @@
 module.exports = class
-  constructor: ->this.init()
+  constructor: (@colour)->
+    @init()
   init: ->
   main: (grid)->return null
   generator: null

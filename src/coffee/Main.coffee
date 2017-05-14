@@ -8,8 +8,9 @@ unless window.engine
   window.engine = new Engine '#hex-grid', Ace
 
 #Global Class Access
-window.Player = require('./Player')
+window.Bot = require('./Bot')
 window.Hex = require('./Hex')
+window.Grid = require('./Grid')
 
 #Load Default Bots
 engine.ace.setClass(0)

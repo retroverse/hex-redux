@@ -1,17 +1,18 @@
 BotConfig = require('./BotConfig')
 Grid = require('./Grid')
-Player = require('./Player')
+Bot = require('./Bot')
 Hex = require('./Hex')
 Persistence = require('./Persistence')
 _ = require('lodash')
 
 module.exports = class
   constructor: (grid_selector, ace)->
-    @grid = new Grid grid_selector
-    @players =
-      red: new Player
-      blue: new Player
-    @activePlayer = 'red'
+    @grid = new Grid()
+    @grid.initDOM grid_selector
+    @bots =
+      red: new Bot 'red'
+      blue: new Bot 'blue'
+    @activeBot = 'red'
     @loopDelay = 0
     @running = true
     @won = false
@@ -60,26 +61,26 @@ module.exports = class
   restart: ->
     @grid.restart()
     @won = false
-    @resetPlayer('red')
-    @resetPlayer('blue')
-    @activePlayer = 'red'
+    @resetBot('red')
+    @resetBot('blue')
+    @activeBot = 'red'
 
-  swapActivePlayer: ->
-    if @activePlayer is 'red'
-      @activePlayer = 'blue'
+  swapActiveBot: ->
+    if @activeBot is 'red'
+      @activeBot = 'blue'
     else
-      @activePlayer = 'red'
+      @activeBot = 'red'
 
   updateConnectionsAndCheckWin: ->
-    path = @grid.updateConnections(@activePlayer)
+    path = @grid.updateConnections(@activeBot)
     if path
-      @win @activePlayer, path.shortest
+      @win @activeBot, path.shortest
 
-  setPlayer: (which, player)->
-    @players[which] = new player
+  setBot: (which, bot)->
+    @bots[which] = new bot which
 
-  resetPlayer: (which)->
-    @players[which] = new @players[which].constructor
+  resetBot: (which)->
+    @bots[which] = new @bots[which].constructor which
 
   iterateGenerator: (active)->
     yielded = active.generator.next({
@@ -105,8 +106,8 @@ module.exports = class
     setTimeout(@loop.bind(this), @loopDelay)
 
   update: ->
-    #Player whos turn it is
-    active = @players[@activePlayer]
+    #Bot whos turn it is
+    active = @bots[@activeBot]
 
     if active.generator
       #Iterate Generator
@@ -134,12 +135,12 @@ module.exports = class
       #Floor Values
       [x, y] = [Math.floor(x), Math.floor(y)]
 
-      #Attempt to take spot, if succesfull swap players
-      if @grid.place x, y, @activePlayer
+      #Attempt to take spot, if succesfull swap bots
+      if @grid.place x, y, @activeBot
         @updateConnectionsAndCheckWin()
-        @swapActivePlayer()
+        @swapActiveBot()
         #Tell Generator it Worked
         if active.generator
           active.generator.previousSuccesfull = true
     else
-      console.warn('Incorrect Player Return (Not Instance of Hex)')
+      console.warn('Incorrect Bot Return (Not Instance of Hex)')
