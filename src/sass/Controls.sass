@@ -1,0 +1,17 @@
+@import "./Partials"
+$break_small: 650px
+$break_mini: 360px
+
+.controls
+  width: 100%
+  height: min-content
+  margin-bottom: 20px
+
+  button
+    margin-left: 10px
+
+    @media screen and (max-width: $break_small)
+      width: 70px
+
+    @media screen and (max-width: $break_mini)
+      width: 50px

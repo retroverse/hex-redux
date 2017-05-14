@@ -50695,7 +50695,7 @@ module.exports = {
 
 
 },{"jquery":8}],34:[function(require,module,exports){
-var ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, len, len1, ref, ref1, setClass;
+var ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, l, len, len1, len2, ref, ref1, ref2, setClass;
 
 ace = require('brace');
 
@@ -50740,6 +50740,41 @@ for (k = 0, len1 = ref1.length; k < len1; k++) {
   });
 }
 
+ref2 = $('.editorreset');
+for (l = 0, len2 = ref2.length; l < len2; l++) {
+  button = ref2[l];
+  $(button).click(function(arg) {
+    var len3, len4, m, n, ref3, ref4, results, target, v;
+    target = arg.target;
+    if ($(target).hasClass('red')) {
+      engine.persistence.clear('red');
+      ref3 = engine.ace.editors;
+      for (i = m = 0, len3 = ref3.length; m < len3; i = ++m) {
+        editor = ref3[i];
+        v = defaultbot;
+        if (i === 0) {
+          editor.setValue(v, -1);
+        }
+      }
+    }
+    if ($(target).hasClass('blue')) {
+      engine.persistence.save('blue');
+      ref4 = engine.ace.editors;
+      results = [];
+      for (i = n = 0, len4 = ref4.length; n < len4; i = ++n) {
+        editor = ref4[i];
+        v = defaultbot.replace("Red", "Blue");
+        if (i === 1) {
+          results.push(editor.setValue(v, -1));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    }
+  });
+}
+
 setClass = function(i) {
   var cl, col;
   cl = this.getClass(i);
@@ -50750,11 +50785,11 @@ setClass = function(i) {
 };
 
 checkPersistence = function(persistence) {
-  var l, len2, ref2, results;
-  ref2 = this.editors;
+  var len3, m, ref3, results;
+  ref3 = this.editors;
   results = [];
-  for (i = l = 0, len2 = ref2.length; l < len2; i = ++l) {
-    e = ref2[i];
+  for (i = m = 0, len3 = ref3.length; m < len3; i = ++m) {
+    e = ref3[i];
     if (persistence.get(i)) {
       results.push(e.setValue(persistence.get(i), -1));
     } else {
@@ -50828,6 +50863,8 @@ module.exports = (function() {
     this.activePlayer = 'red';
     this.loopDelay = 0;
     this.running = true;
+    this.won = false;
+    this.autorestart = false;
     this.ace = ace;
     this.persistence = new Persistence;
     this.persistence.init();
@@ -50835,9 +50872,9 @@ module.exports = (function() {
   }
 
   _Class.prototype.win = function(who, path) {
-    var h, hex, i, j, k, l, len, len1, len2, m, p, ref, ref1, results, row;
-    if (this.running) {
-      this.running = false;
+    var hex, i, j, k, l, len, len1, len2, len3, len4, m, p, pathHexs, ref, ref1, row;
+    if (!this.won) {
+      this.won = true;
       console.log(who + " has won!");
       $('.title').removeClass("red");
       $('.title').removeClass("blue");
@@ -50845,35 +50882,42 @@ module.exports = (function() {
       $('.title').css("opacity", "0.4").transition({
         opacity: "1"
       }, 1000);
-      $('.hex').addClass('dim');
-      i = j = 0;
-      console.log(path);
-      ref = $('.hex.row');
-      results = [];
-      for (k = 0, len = ref.length; k < len; k++) {
-        row = ref[k];
-        ref1 = $(row).children();
-        for (l = 0, len1 = ref1.length; l < len1; l++) {
-          hex = ref1[l];
-          h = this.grid.state[i][j];
-          for (m = 0, len2 = path.length; m < len2; m++) {
-            p = path[m];
-            if (p[0] === h.x && p[1] === h.y) {
-              $(hex).removeClass('dim');
+      this.grid.update();
+      pathHexs = [];
+      ref = this.grid.state;
+      for (i = 0, len = ref.length; i < len; i++) {
+        row = ref[i];
+        for (j = 0, len1 = row.length; j < len1; j++) {
+          hex = row[j];
+          for (k = 0, len2 = path.length; k < len2; k++) {
+            p = path[k];
+            if (p[0] === hex.x && p[1] === hex.y) {
+              pathHexs.push(hex);
             }
           }
-          i++;
         }
-        i = 0;
-        results.push(j++);
       }
-      return results;
+      ref1 = this.grid.state;
+      for (l = 0, len3 = ref1.length; l < len3; l++) {
+        row = ref1[l];
+        for (m = 0, len4 = row.length; m < len4; m++) {
+          hex = row[m];
+          if (!pathHexs.includes(hex)) {
+            $(hex.element).transition({
+              opacity: ".4"
+            }, 350);
+          }
+        }
+      }
+      if (this.autorestart) {
+        return setTimeout(this.restart.bind(this), 400);
+      }
     }
   };
 
   _Class.prototype.restart = function() {
     this.grid.restart();
-    this.running = true;
+    this.won = false;
     this.resetPlayer('red');
     this.resetPlayer('blue');
     return this.activePlayer = 'red';
@@ -50917,10 +50961,10 @@ module.exports = (function() {
   };
 
   _Class.prototype.loop = function() {
-    if (this.running) {
+    if (this.running && !this.won) {
       this.update();
     }
-    this.grid.update(this.activePlayer);
+    this.grid.update();
     BotConfig.update(this.ace);
     return setTimeout(this.loop.bind(this), this.loopDelay);
   };
@@ -50978,7 +51022,7 @@ GridPathFindingProto = require('./lib/GridPF');
 
 grid = (function() {
   function _Class(selector, size) {
-    var col, i, j, k, l, m, n, ref, ref1, ref2, ref3, row;
+    var cell, i, j, k, l, m, n, ref, ref1, ref2, ref3, row;
     this.size = size != null ? size : 11;
     this.state = [];
     for (i = k = 0, ref = this.size; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
@@ -50994,28 +51038,30 @@ grid = (function() {
     for (i = m = 0, ref2 = this.size; 0 <= ref2 ? m < ref2 : m > ref2; i = 0 <= ref2 ? ++m : --m) {
       this.root.append(row = $('<div class="hex row"></div>'));
       for (j = n = 0, ref3 = this.size; 0 <= ref3 ? n < ref3 : n > ref3; j = 0 <= ref3 ? ++n : --n) {
-        row.append(col = $('<div class="hex cell"></div>'));
+        row.append(cell = $('<div class="hex cell"></div>'));
+        this.state[j][i].element = cell;
       }
     }
   }
 
   _Class.prototype.restart = function() {
-    var i, j, k, ref, results;
-    $('.hex').removeClass('dim');
-    this.state = [];
+    var hex, k, len, ref, results, row;
+    ref = this.state;
     results = [];
-    for (i = k = 0, ref = this.size; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
-      this.state[i] = [];
+    for (k = 0, len = ref.length; k < len; k++) {
+      row = ref[k];
       results.push((function() {
-        var l, ref1, results1;
+        var l, len1, results1;
         results1 = [];
-        for (j = l = 0, ref1 = this.size; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
-          results1.push(this.state[i][j] = new Hex(i, j, {
-            value: 'neutral'
-          }));
+        for (l = 0, len1 = row.length; l < len1; l++) {
+          hex = row[l];
+          hex.value = 'neutral';
+          results1.push($(hex.element).transition({
+            opacity: "1"
+          }, 200));
         }
         return results1;
-      }).call(this));
+      })());
     }
     return results;
   };
@@ -51038,24 +51084,23 @@ grid = (function() {
   };
 
   _Class.prototype.update = function(which) {
-    var hex, i, j, k, l, len, len1, ref, ref1, results, row, value;
+    var hex, k, len, ref, results, row;
     $('.hex.cell').removeClass('neutral');
     $('.hex.cell').removeClass('red');
     $('.hex.cell').removeClass('blue');
-    i = j = 0;
-    ref = $('.hex.row');
+    ref = this.state;
     results = [];
     for (k = 0, len = ref.length; k < len; k++) {
       row = ref[k];
-      ref1 = $(row).children();
-      for (l = 0, len1 = ref1.length; l < len1; l++) {
-        hex = ref1[l];
-        value = this.state[i][j].value;
-        $(hex).addClass(value);
-        i++;
-      }
-      i = 0;
-      results.push(j++);
+      results.push((function() {
+        var l, len1, results1;
+        results1 = [];
+        for (l = 0, len1 = row.length; l < len1; l++) {
+          hex = row[l];
+          results1.push($(hex.element).addClass(hex.value));
+        }
+        return results1;
+      })());
     }
     return results;
   };
@@ -51071,7 +51116,7 @@ GridPathFindingProto(grid);
 module.exports = grid;
 
 
-},{"./Hex":37,"./lib/Grid":42,"./lib/GridPF":43}],37:[function(require,module,exports){
+},{"./Hex":37,"./lib/Grid":43,"./lib/GridPF":44}],37:[function(require,module,exports){
 module.exports = (function() {
   function _Class(x, y, arg) {
     this.x = x;
@@ -51095,6 +51140,8 @@ var Ace, Engine;
 
 require('./jQuery');
 
+require('./UIControls');
+
 Ace = require('./Brace');
 
 Engine = require('./Engine');
@@ -51114,7 +51161,7 @@ engine.ace.setClass(1);
 window.engine.loop();
 
 
-},{"./Brace":34,"./Engine":35,"./Hex":37,"./Player":40,"./jQuery":41}],39:[function(require,module,exports){
+},{"./Brace":34,"./Engine":35,"./Hex":37,"./Player":40,"./UIControls":41,"./jQuery":42}],39:[function(require,module,exports){
 var Persistence;
 
 Persistence = (function() {
@@ -51140,10 +51187,18 @@ Persistence = (function() {
     return this.available = this.getAvailable('localStorage');
   };
 
-  Persistence.prototype.clear = function() {
+  Persistence.prototype.clear = function(which) {
     if (this.available) {
-      localStorage.removeItem('hex-bot-red');
-      return localStorage.removeItem('hex-bot-blue');
+      if (which === 'red') {
+        localStorage.removeItem('hex-bot-red');
+        return;
+      }
+      if (which === 'blue') {
+        localStorage.removeItem('hex-bot-blue');
+        return;
+      }
+      localStorage.removeItem('hex-bot-blue');
+      return localStorage.removeItem('hex-bot-red');
     }
   };
 
@@ -51194,12 +51249,46 @@ module.exports = (function() {
 
 
 },{}],41:[function(require,module,exports){
+$('#TogglePlay').click(function(arg) {
+  var target;
+  target = arg.target;
+  if ($(target).html() === 'play_arrow') {
+    $(target).html('pause');
+    return engine.running = true;
+  } else {
+    $(target).html('play_arrow');
+    return engine.running = false;
+  }
+});
+
+$('#Step').click(function(arg) {
+  var target;
+  target = arg.target;
+  if (!(engine.running || engine.won)) {
+    return engine.update();
+  }
+});
+
+$('#AutoRestart').click(function(arg) {
+  var target;
+  target = arg.target;
+  if ($(target).hasClass('checked')) {
+    $(target).removeClass('checked');
+    return engine.autorestart = false;
+  } else {
+    $(target).addClass('checked');
+    return engine.autorestart = true;
+  }
+});
+
+
+},{}],42:[function(require,module,exports){
 window.jQuery = window.$ = require('jquery');
 
 require('jquery.transit');
 
 
-},{"jquery":8,"jquery.transit":7}],42:[function(require,module,exports){
+},{"jquery":8,"jquery.transit":7}],43:[function(require,module,exports){
 module.exports = function(grid) {
   grid.prototype.get = function(x, y) {
     var hex;
@@ -51281,7 +51370,7 @@ module.exports = function(grid) {
 };
 
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var Pathfinding;
 
 Pathfinding = require('pathfinding');

@@ -17,10 +17,17 @@ class Persistence
   init: ->
     this.available = this.getAvailable('localStorage')
 
-  clear: ->
+  clear: (which)->
     if this.available
-      localStorage.removeItem('hex-bot-red')
+      if which is 'red'
+        localStorage.removeItem('hex-bot-red')
+        return
+      if which is 'blue'
+        localStorage.removeItem('hex-bot-blue')
+        return
       localStorage.removeItem('hex-bot-blue')
+      localStorage.removeItem('hex-bot-red')
+
 
   get: (which)->
     if this.available

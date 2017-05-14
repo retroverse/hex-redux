@@ -1,10 +1,11 @@
 @import "./Partials"
-$break_small: 670px
+$break_small: 850px
 
 .editor
   width: 50%
   height: 400px
   float: left
+  margin-top: 50px
 
   @media screen and (max-width: $break_small)
     float: none
@@ -28,7 +29,7 @@ $break_small: 670px
     border-radius: 5px
     border: 2px solid $light-grey
 
-  button.editorapply
+  button.editorapply, button.editorreset
     +label
     margin-top: 20px
     margin-left: 20px

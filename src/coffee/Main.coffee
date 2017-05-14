@@ -1,4 +1,5 @@
 require('./jQuery')
+require('./UIControls')
 Ace = require('./Brace')
 Engine = require('./Engine')
 
