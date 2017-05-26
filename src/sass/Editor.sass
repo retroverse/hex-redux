@@ -1,6 +1,12 @@
 @import "./Partials"
 $break_small: 850px
 
+.editors
+  width: 70%
+  height: 100%
+  margin: auto
+  margin-top: -160px
+
 .editor
   width: 50%
   height: 400px
@@ -10,6 +16,8 @@ $break_small: 850px
   @media screen and (max-width: $break_small)
     float: none
     width: 100%
+    &:first-child
+      margin-top: 100px
 
     &:last-child
       margin-top: 160px

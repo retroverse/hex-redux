@@ -22,6 +22,7 @@ for editor, i in $('.editortext')
   e.getSession().setMode 'ace/mode/javascript'
   e.setTheme 'ace/theme/dawn'
   e.$blockScrolling = Infinity
+  e.setShowPrintMargin(false);
 
   #Set Default Value
   if i is 0

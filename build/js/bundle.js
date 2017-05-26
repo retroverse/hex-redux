@@ -50734,6 +50734,7 @@ for (i = j = 0, len = ref.length; j < len; i = ++j) {
   e.getSession().setMode('ace/mode/javascript');
   e.setTheme('ace/theme/dawn');
   e.$blockScrolling = 2e308;
+  e.setShowPrintMargin(false);
   if (i === 0) {
     e.setValue(defaultbot, -1);
   } else {
