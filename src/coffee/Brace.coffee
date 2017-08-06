@@ -15,6 +15,7 @@ defaultbot = """
     }
 """
 
+
 #Create Editors
 editors = []
 for editor, i in $('.editortext')
@@ -22,6 +23,7 @@ for editor, i in $('.editortext')
   e.getSession().setMode 'ace/mode/javascript'
   e.setTheme 'ace/theme/dawn'
   e.$blockScrolling = Infinity
+  e.setShowPrintMargin(false);
 
   #Set Default Value
   if i is 0
@@ -77,7 +79,7 @@ getClass = (i)->
   editor = this.editors[i]
   codeText = editor.getValue()
   try
-    ret = eval(codeText)
+    ret = new Function('return ' + codeText)()
   catch e
     console.warn "Error executing Bot"
     console.warn e

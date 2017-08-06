@@ -1,0 +1,40 @@
+@import "./Partials"
+$notification-width: 240px
+$notification-height: $notification-width / 2.3
+$notification-offset: 5px
+
+.notifications
+  position: fixed
+  z-index: 1
+  height: 99%
+  top: 5px
+  left: calc(100% - #{$notification-width})
+  display: flex
+  flex-direction: column-reverse
+
+  .notification
+    width: $notification-width
+    height: $notification-height
+    margin-bottom: 3px
+    position: relative
+
+    .content
+      +label
+      width: 88%
+      height: 80%
+      margin: auto
+      margin-bottom: 20%
+      padding: 10px
+      word-wrap: break-word
+
+      border-radius: 5px
+      color: white
+
+      h1.notification-title
+        font-size: 26px
+
+      &.error
+        background-color: $hex-red
+
+      &.message
+        background-color: $hex-neutral
