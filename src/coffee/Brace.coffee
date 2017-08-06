@@ -7,10 +7,14 @@ require('brace/theme/dawn')
 defaultbot = """
     class RedBot extends Bot {
         main(grid) {
-            return new Hex(
-                Math.random()*11,
-                Math.random()*11
-            )
+          // Get all hexs
+          let all = grid.all()
+
+          // Filter for those that are empty
+          let empty = all.filter(grid.is_empty)
+
+          // Use lodash to get a random one
+          return _.sample(empty)
         }
     }
 """

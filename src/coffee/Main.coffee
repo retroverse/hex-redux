@@ -16,6 +16,7 @@ window.Bot = require('./Bot')
 window.Hex = require('./Hex')
 window.Grid = require('./Grid')
 window.Notifications = Notifications
+window._ = require('lodash')
 
 #Load Default Bots
 engine.ace.setClass(0)
