@@ -15,6 +15,7 @@ defaultbot = """
     }
 """
 
+
 #Create Editors
 editors = []
 for editor, i in $('.editortext')
@@ -78,7 +79,7 @@ getClass = (i)->
   editor = this.editors[i]
   codeText = editor.getValue()
   try
-    ret = eval(codeText)
+    ret = new Function('return ' + codeText)()
   catch e
     console.warn "Error executing Bot"
     console.warn e
