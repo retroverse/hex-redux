@@ -5,8 +5,8 @@ require('brace/theme/dawn')
 
 #Default Bot
 defaultbot = """
-    class RedBot extends Bot {
-        main(grid) {
+  class RedBot extends Bot {
+      main(grid) {
           // Get all hexs
           let all = grid.all()
 
@@ -15,8 +15,8 @@ defaultbot = """
 
           // Use lodash to get a random one
           return _.sample(empty)
-        }
-    }
+      }
+  }
 """
 
 
@@ -78,10 +78,13 @@ checkPersistence = (persistence)->
     if persistence.get(i)
       e.setValue(persistence.get(i), -1)
 
+transformText = (text)->
+  text = text.replace /\$\.?([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'this.$1'
 
 getClass = (i)->
   editor = this.editors[i]
   codeText = editor.getValue()
+  codeText = transformText codeText
   try
     ret = new Function('return ' + codeText)()
   catch e
