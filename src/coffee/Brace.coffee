@@ -81,6 +81,7 @@ checkPersistence = (persistence)->
 
 transformText = (text)->
   text = text.replace /\$\.?([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'this.$1'
+  text = text.replace /export/g, 'return'
 
 getClass = (i)->
   editor = this.editors[i]

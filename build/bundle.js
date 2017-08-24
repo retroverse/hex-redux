@@ -28558,7 +28558,8 @@ checkPersistence = function(persistence) {
 };
 
 transformText = function(text) {
-  return text = text.replace(/\$\.?([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'this.$1');
+  text = text.replace(/\$\.?([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'this.$1');
+  return text = text.replace(/export/g, 'return');
 };
 
 getClass = function(i) {
@@ -49080,6 +49081,12 @@ module.exports = function(grid) {
       h = this.get(h, y);
     }
     return h.value === 'blue';
+  };
+  grid.prototype.is_opposite = function(h, o) {
+    if (h.value === 'neutral') {
+      return false;
+    }
+    return h.value !== o.value;
   };
   grid.prototype.all = function() {
     var column, hexs, k, l, len, len1, ref, row;

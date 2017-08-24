@@ -27,6 +27,11 @@ module.exports = (grid)->
     if this instanceof Grid then h = this.get(h, y)
     h.value is 'blue'
 
+  #Returns whether two given hex's are opposites
+  grid.prototype.is_opposite = (h, o)->
+    if h.value is 'neutral' then return false
+    return h.value isnt o.value
+
   #Returns every hex in the grid
   grid.prototype.all = ->
     hexs = []
