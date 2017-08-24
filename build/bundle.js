@@ -28449,7 +28449,7 @@ module.exports = function(module) {
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, l, len, len1, len2, ref, ref1, ref2, setClass;
+var ace, button, checkPersistence, defaultbot, e, editor, editors, getClass, i, j, k, l, len, len1, len2, ref, ref1, ref2, setClass, transformText;
 
 ace = __webpack_require__(22);
 
@@ -28457,7 +28457,7 @@ __webpack_require__(23);
 
 __webpack_require__(24);
 
-defaultbot = "class RedBot extends Bot {\n    main(grid) {\n      // Get all hexs\n      let all = grid.all()\n\n      // Filter for those that are empty\n      let empty = all.filter(grid.is_empty)\n\n      // Use lodash to get a random one\n      return _.sample(empty)\n    }\n}";
+defaultbot = "return class RedBot extends Bot {\n    main(grid) {\n        // Get all hexs\n        let all = grid.all()\n\n        // Filter for those that are empty\n        let empty = all.filter(grid.is_empty)\n\n        // Use lodash to get a random one\n        return _.sample(empty)\n    }\n}";
 
 editors = [];
 
@@ -28466,6 +28466,11 @@ for (i = j = 0, len = ref.length; j < len; i = ++j) {
   editor = ref[i];
   e = ace.edit(editor);
   e.getSession().setMode('ace/mode/javascript');
+  e.session.$worker.send("changeOptions", [
+    {
+      asi: true
+    }
+  ]);
   e.setTheme('ace/theme/dawn');
   e.$blockScrolling = 2e308;
   e.setShowPrintMargin(false);
@@ -28552,12 +28557,17 @@ checkPersistence = function(persistence) {
   return results;
 };
 
+transformText = function(text) {
+  return text = text.replace(/\$\.?([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'this.$1');
+};
+
 getClass = function(i) {
   var codeText, ret, test;
   editor = this.editors[i];
   codeText = editor.getValue();
+  codeText = transformText(codeText);
   try {
-    ret = new Function('return ' + codeText)();
+    ret = new Function(codeText)();
   } catch (error) {
     e = error;
     console.warn("Error executing Bot");
@@ -48901,16 +48911,15 @@ $ = __webpack_require__(6);
 
 module.exports = {
   update: function(ace) {
-    var editor, i, j, len, name, ref, results, str, text, title;
+    var className, editor, i, j, len, ref, results, str, title;
     ref = ace.editors;
     results = [];
     for (i = j = 0, len = ref.length; j < len; i = ++j) {
       editor = ref[i];
       title = $(".editortitle." + editor.colour);
-      text = editor.getValue();
-      name = text.replace(/[\s\S]*class\s+(.*)\s+extends[\s\S]*/, "$1");
-      if (text !== name && !/$\s*^/.test(name)) {
-        results.push(title.html(name));
+      className = engine.bots[editor.colour].constructor.name;
+      if (className) {
+        results.push(title.html(className));
       } else {
         str = editor.colour;
         str = editor.colour.slice(1);
