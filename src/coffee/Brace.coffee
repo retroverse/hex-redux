@@ -5,7 +5,7 @@ require('brace/theme/dawn')
 
 #Default Bot
 defaultbot = """
-  class RedBot extends Bot {
+  return class RedBot extends Bot {
       main(grid) {
           // Get all hexs
           let all = grid.all()
@@ -25,6 +25,7 @@ editors = []
 for editor, i in $('.editortext')
   e = ace.edit editor
   e.getSession().setMode 'ace/mode/javascript'
+  e.session.$worker.send("changeOptions", [{asi: true}]);
   e.setTheme 'ace/theme/dawn'
   e.$blockScrolling = Infinity
   e.setShowPrintMargin(false);
@@ -86,7 +87,7 @@ getClass = (i)->
   codeText = editor.getValue()
   codeText = transformText codeText
   try
-    ret = new Function('return ' + codeText)()
+    ret = new Function(codeText)()
   catch e
     console.warn "Error executing Bot"
     console.warn e

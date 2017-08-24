@@ -4,10 +4,9 @@ module.exports =
   update: (ace)->
     for editor, i in ace.editors
       title = $ ".editortitle.#{editor.colour}"
-      text = editor.getValue()
-      name = text.replace(/[\s\S]*class\s+(.*)\s+extends[\s\S]*/, "$1")
-      if text isnt name and not /$\s*^/.test name
-        title.html name
+      className = engine.bots[editor.colour].constructor.name
+      if className
+        title.html className
       else
         str = editor.colour
         str = editor.colour.slice(1)
