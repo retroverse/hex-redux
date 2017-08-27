@@ -49048,8 +49048,14 @@ module.exports = Persistence;
 /***/ (function(module, exports) {
 
 module.exports = function(grid) {
-  grid.prototype.get = function(x, y) {
+  grid.prototype.get = function(x, y, isSilent) {
     var hex;
+    if (!((0 <= x && x <= 10) && (0 <= y && y <= 10))) {
+      if (!isSilent) {
+        throw new Error("Attempting to 'get', out of range at [" + x + ", " + y + "]");
+      }
+      return null;
+    }
     if (x instanceof Hex) {
       return x;
     }
@@ -49102,7 +49108,7 @@ module.exports = function(grid) {
     return hexs;
   };
   grid.prototype.neighbours = function(h) {
-    var i, j, k, l, len, len1, neighbours, ref, ref1, ref2, ref3;
+    var i, j, k, l, len, len1, n, neighbours, ref, ref1, ref2, ref3;
     neighbours = [];
     ref = [-1, 0, 1];
     for (k = 0, len = ref.length; k < len; k++) {
@@ -49113,7 +49119,10 @@ module.exports = function(grid) {
         if (!((i === 0 && j === 0) || i === j)) {
           if ((0 <= (ref2 = h.x + i) && ref2 <= 10)) {
             if ((0 <= (ref3 = h.y + j) && ref3 <= 10)) {
-              neighbours.push(this.state[h.x + i][h.y + j]);
+              n = this.get(h.x + i, h.y + j, true);
+              if (n) {
+                neighbours.push(n);
+              }
             }
           }
         }
