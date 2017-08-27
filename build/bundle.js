@@ -28558,7 +28558,8 @@ checkPersistence = function(persistence) {
 };
 
 transformText = function(text) {
-  return text = text.replace(/\$\.?([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'this.$1');
+  text = text.replace(/\$\.?([a-zA-Z_$][a-zA-Z_$0-9]*)/g, 'this.$1');
+  return text = text.replace(/export/g, 'return');
 };
 
 getClass = function(i) {
@@ -49047,8 +49048,14 @@ module.exports = Persistence;
 /***/ (function(module, exports) {
 
 module.exports = function(grid) {
-  grid.prototype.get = function(x, y) {
+  grid.prototype.get = function(x, y, isSilent) {
     var hex;
+    if (!((0 <= x && x <= 10) && (0 <= y && y <= 10))) {
+      if (!isSilent) {
+        throw new Error("Attempting to 'get', out of range at [" + x + ", " + y + "]");
+      }
+      return null;
+    }
     if (x instanceof Hex) {
       return x;
     }
@@ -49081,6 +49088,12 @@ module.exports = function(grid) {
     }
     return h.value === 'blue';
   };
+  grid.prototype.is_opposite = function(h, o) {
+    if (h.value === 'neutral') {
+      return false;
+    }
+    return h.value !== o.value;
+  };
   grid.prototype.all = function() {
     var column, hexs, k, l, len, len1, ref, row;
     hexs = [];
@@ -49095,7 +49108,7 @@ module.exports = function(grid) {
     return hexs;
   };
   grid.prototype.neighbours = function(h) {
-    var i, j, k, l, len, len1, neighbours, ref, ref1, ref2, ref3;
+    var i, j, k, l, len, len1, n, neighbours, ref, ref1, ref2, ref3;
     neighbours = [];
     ref = [-1, 0, 1];
     for (k = 0, len = ref.length; k < len; k++) {
@@ -49106,7 +49119,10 @@ module.exports = function(grid) {
         if (!((i === 0 && j === 0) || i === j)) {
           if ((0 <= (ref2 = h.x + i) && ref2 <= 10)) {
             if ((0 <= (ref3 = h.y + j) && ref3 <= 10)) {
-              neighbours.push(this.state[h.x + i][h.y + j]);
+              n = this.get(h.x + i, h.y + j, true);
+              if (n) {
+                neighbours.push(n);
+              }
             }
           }
         }

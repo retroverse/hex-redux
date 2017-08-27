@@ -1,6 +1,9 @@
 module.exports = (grid)->
   #Gets a hex from a set point
-  grid.prototype.get = (x, y)->
+  grid.prototype.get = (x, y, isSilent)->
+    unless 0 <= x <= 10 and 0 <= y <= 10
+      unless isSilent then throw new Error "Attempting to 'get', out of range at [#{x}, #{y}]"
+      return null
     if x instanceof Hex then return x
     hex = this.state[x][y]
     if hex
@@ -27,6 +30,11 @@ module.exports = (grid)->
     if this instanceof Grid then h = this.get(h, y)
     h.value is 'blue'
 
+  #Returns whether two given hex's are opposites
+  grid.prototype.is_opposite = (h, o)->
+    if h.value is 'neutral' then return false
+    return h.value isnt o.value
+
   #Returns every hex in the grid
   grid.prototype.all = ->
     hexs = []
@@ -43,7 +51,8 @@ module.exports = (grid)->
         unless (i is 0 and j is 0) or i is j
           if 0 <= h.x+i <= 10
             if 0 <= h.y+j <= 10
-              neighbours.push this.state[h.x+i][h.y+j]
+              n = this.get(h.x + i, h.y + j, true) ## Silently cancel on null hex
+              if n then neighbours.push n
     return neighbours
 
   #Gets whether two hex's are neighbours
