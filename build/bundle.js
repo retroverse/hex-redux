@@ -49131,12 +49131,22 @@ module.exports = function(grid) {
     return neighbours;
   };
   grid.prototype.is_neighbour = function(x1, y1, x2, y2) {
-    var hex, k, len, ref;
-    ref = this.neighbours(x1, y1);
-    for (k = 0, len = ref.length; k < len; k++) {
-      hex = ref[k];
-      if (hex.x === x2 && hex.y === y2) {
-        return true;
+    var hex, k, l, len, len1, ref, ref1;
+    if (typeof x1 !== 'object') {
+      ref = this.neighbours(x1, y1);
+      for (k = 0, len = ref.length; k < len; k++) {
+        hex = ref[k];
+        if (hex.x === x2 && hex.y === y2) {
+          return true;
+        }
+      }
+    } else {
+      ref1 = this.neighbours(x1);
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        hex = ref1[l];
+        if (hex === x2) {
+          return true;
+        }
       }
     }
     return false;

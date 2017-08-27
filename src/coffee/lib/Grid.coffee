@@ -15,7 +15,7 @@ module.exports = (grid)->
     if this instanceof Grid then h = this.get(h, y)
     h.value is 'neutral'
 
-  #Returns whether a hex is empty
+  #Returns whether a hex isnt empty
   grid.prototype.is_taken = (h, y)->
     if this instanceof Grid then h = this.get(h, y)
     h.value isnt 'neutral'
@@ -57,9 +57,14 @@ module.exports = (grid)->
 
   #Gets whether two hex's are neighbours
   grid.prototype.is_neighbour = (x1, y1, x2, y2)->
-    for hex in this.neighbours x1, y1
-      if hex.x is x2 and hex.y is y2
-        return true
+    if typeof x1 isnt 'object'
+      for hex in this.neighbours x1, y1
+        if hex.x is x2 and hex.y is y2
+          return true
+    else
+      for hex in this.neighbours x1
+        if hex == x2
+          return true
     return false
 
   #Returns all hex's in a row
