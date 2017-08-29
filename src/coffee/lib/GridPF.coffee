@@ -9,6 +9,9 @@ module.exports = (grid)->
         diagonalMovement: Pathfinding.DiagonalMovement.Always
     })
 
+  grid.hasWon = (which)->
+    not not grid.prototype.updateConnections which
+
   grid.prototype.updateConnections = (which)->
     unless which is 'red' or which is 'blue'
       return
