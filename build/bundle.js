@@ -49157,6 +49157,12 @@ var _;
 _ = __webpack_require__(12);
 
 module.exports = function(grid) {
+  grid.prototype.clone = function() {
+    var o;
+    o = _.clone(this);
+    o.bindToSelf(o);
+    return o;
+  };
   grid.prototype.get = function(x, y, isSilent) {
     var hex;
     if (x instanceof Hex) {

@@ -1,6 +1,11 @@
 _ = require 'lodash'
 
 module.exports = (grid)->
+  grid.prototype.clone = ->
+    o = _.clone @
+    o.bindToSelf o
+    return o
+
   #Gets a hex from a set point
   grid.prototype.get = (x, y, isSilent)->
     if x instanceof Hex then return x
