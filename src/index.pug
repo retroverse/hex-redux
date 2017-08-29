@@ -16,6 +16,13 @@ html
         button.material-icons#TogglePlay pause
         button.material-icons#Step skip_next
         button.material-icons.toggle#AutoRestart autorenew
+      .controls
+        input.hex-slider#SpeedSlider(
+          type="range", 
+          max="200", 
+          min="0", 
+          value="80"
+        )
       .square
         #hex-grid
     .editors

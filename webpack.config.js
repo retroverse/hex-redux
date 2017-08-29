@@ -24,6 +24,10 @@ module.exports = {
         use: [ 'style-loader', 'css-loader', 'sass-loader?sourceMap' ]
       },
       {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
+      },
+      {
         test: /\.(jade|pug)$/,
         use: ['html-loader', 'pug-html-loader']
       },
