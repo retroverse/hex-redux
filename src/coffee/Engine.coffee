@@ -15,6 +15,7 @@ module.exports = class
     @activeBot = 'red'
     @loopDelay = 0
     @running = true
+    @paused = false
     @won = false
     @autorestart = false
     @ace = ace
@@ -93,7 +94,7 @@ module.exports = class
     return yielded.value
 
   loop: ->
-    if @running and not @won
+    if @running and not @won and not @paused
       @update()
 
     #Update The Grid Visuals
@@ -117,8 +118,10 @@ module.exports = class
         console.warn('Bot encounted a runtime error. ', e)
     else
       #Perform Turn
+      g = _.clone @grid
+      g.bindToSelf()
       try
-        returned = active.main _.clone @grid, true
+        returned = active.main g, true
       catch e
         console.warn('Bot encounted a runtime error. ', e)
 

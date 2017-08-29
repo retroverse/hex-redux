@@ -1,10 +1,12 @@
+_ = require 'lodash'
+
 module.exports = (grid)->
   #Gets a hex from a set point
   grid.prototype.get = (x, y, isSilent)->
+    if x instanceof Hex then return x
     unless 0 <= x <= 10 and 0 <= y <= 10
       unless isSilent then throw new Error "Attempting to 'get', out of range at [#{x}, #{y}]"
       return null
-    if x instanceof Hex then return x
     hex = this.state[x][y]
     if hex
       return hex
@@ -69,3 +71,9 @@ module.exports = (grid)->
   #Returns all hex's in a column
   grid.prototype.column = (x)->
     this.get(x, y) for y in [0...11]
+
+  #Centralized Hex methods (for mapping)
+  grid.prototype.bindToSelf = () ->
+    for key of @
+      if typeof @[key] is 'function'
+        @[key] = @[key].bind @
