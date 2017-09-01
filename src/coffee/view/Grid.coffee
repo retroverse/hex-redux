@@ -40,7 +40,7 @@ class Grid
     for row in state
       for hex in row
         for p in path
-          if p[0] is hex.y and p[1] is hex.x
+          if p[0] is hex.x and p[1] is hex.y
             pathHexs.push hex
 
     #Dim non-path hex's

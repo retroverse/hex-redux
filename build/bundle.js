@@ -49139,7 +49139,7 @@ Grid = (function() {
         hex = row[l];
         for (m = 0, len2 = path.length; m < len2; m++) {
           p = path[m];
-          if (p[0] === hex.y && p[1] === hex.x) {
+          if (p[0] === hex.x && p[1] === hex.y) {
             pathHexs.push(hex);
           }
         }
