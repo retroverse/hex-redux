@@ -1,8 +1,9 @@
+Hex = require '../Hex'
 _ = require 'lodash'
 
 module.exports = (grid)->
   grid.prototype.clone = ->
-    o = _.clone @
+    o = _.cloneDeep @
     o.bindToSelf o
     return o
 
@@ -19,22 +20,22 @@ module.exports = (grid)->
   #Returns whether a hex is empty
   grid.prototype.is_empty =
   grid.prototype.is_neutral = (h, y)->
-    if this instanceof Grid then h = this.get(h, y)
+    if this instanceof grid then h = this.get(h, y)
     h.value is 'neutral'
 
   #Returns whether a hex is empty
   grid.prototype.is_taken = (h, y)->
-    if this instanceof Grid then h = this.get(h, y)
+    if this instanceof grid then h = this.get(h, y)
     h.value isnt 'neutral'
 
   #Returns whether a hex is red
   grid.prototype.is_red = (h, y)->
-    if this instanceof Grid then h = this.get(h, y)
+    if this instanceof grid then h = this.get(h, y)
     h.value is 'red'
 
   #Returns whether a hex is blue
   grid.prototype.is_blue = (h, y)->
-    if this instanceof Grid then h = this.get(h, y)
+    if this instanceof grid then h = this.get(h, y)
     h.value is 'blue'
 
   #Returns whether two given hex's are opposites

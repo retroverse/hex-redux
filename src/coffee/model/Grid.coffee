@@ -2,7 +2,7 @@ Hex = require './Hex'
 GridProto = require('./lib/Grid')
 GridPathFindingProto = require('./lib/GridPF')
 
-grid = class
+class Grid
   constructor: ()->
     #Define State
     @state = []
@@ -14,22 +14,10 @@ grid = class
     #Intialise Path Finding
     @initPathFinding()
 
-  initDOM: (selector)->
-    #Get the root node
-    @root = $(selector)
-
-    #Add rows
-    for i in [0...11]
-      @root.append row = $('<div class="hex row"></div>')
-      for j in [0...11]
-        row.append cell = $('<div class="hex cell"></div>')
-        @state[j][i].element = cell
-
   restart: ->
     for row in @state
       for hex in row
         hex.value = 'neutral'
-        $(hex.element).transition({opacity: "1"}, 200)
 
   place: (x, y, val)->
     unless 0<=x<=10 and 0<=y<=10
@@ -44,20 +32,10 @@ grid = class
       console.warn 'Invalid Arguments (No Such Node)'
       return
 
-  update: (which)->
-    #Update Looks
-    $('.hex.cell').removeClass('neutral')
-    $('.hex.cell').removeClass('red')
-    $('.hex.cell').removeClass('blue')
-
-    for row in @state
-      for hex in row
-        $(hex.element).addClass(hex.value)
-
 #Prototype
-GridProto(grid)
+GridProto(Grid)
 
 #Pathfinding Prototype
-GridPathFindingProto(grid)
+GridPathFindingProto(Grid)
 
-module.exports = grid
+module.exports = Grid

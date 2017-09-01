@@ -1,67 +1,32 @@
-BotConfig = require('./BotConfig')
 Grid = require('./Grid')
 Bot = require('./Bot')
 Hex = require('./Hex')
-Persistence = require('./Persistence')
 _ = require('lodash')
 
 module.exports = class
-  constructor: (grid_selector, ace)->
+  constructor: ()->
     @grid = new Grid()
-    @grid.initDOM grid_selector
     @bots =
       red: new Bot 'red'
       blue: new Bot 'blue'
     @activeBot = 'red'
-    @loopDelay = 0
-    @running = true
-    @paused = false
-    @won = false
-    @autorestart = false
-    @ace = ace
 
-    @persistence = new Persistence
-    @persistence.init()
-    @ace.checkPersistence(@persistence)
+    @Hex = Hex
+    @Bot = Bot
+    @Grid = Grid
+
+    @onWin = (who, path, state) ->
+    @onTake = (x, y, c) ->
+    @warn = (x) -> console.warn x
+    @error = (x, err) -> console.warn x, err
 
   win: (who, path)->
     unless @won
       @won = true
-      console.log "#{who} has won!"
-
-      #Title Colour and Flash
-      $('.title').removeClass "red"
-      $('.title').removeClass "blue"
-      $('.title').addClass "#{who}"
-      $('.title').css("opacity", "0.4")
-        .transition({ opacity: "1"}, 1000)
-
-      #First ensure that grid is up-to-date
-      @grid.update()
-
-      #Get path hexs
-      pathHexs = []
-      for row in @grid.state
-        for hex in row
-          for p in path
-            if p[0] is hex.x and p[1] is hex.y
-              pathHexs.push hex
-
-      #Dim non-path hex's
-      for row in @grid.state
-        for hex in row
-          unless pathHexs.includes hex
-            $(hex.element).transition({ opacity: ".4"}, 350)
-
-
-      #Automatically Restart the game
-      if @autorestart
-        setTimeout @restart.bind(this), 400
-
+    @onWin who, path, @grid.state
 
   restart: ->
     @grid.restart()
-    @won = false
     @resetBot('red')
     @resetBot('blue')
     @activeBot = 'red'
@@ -85,28 +50,15 @@ module.exports = class
 
   iterateGenerator: (active)->
     yielded = active.generator.next({
-      grid: _.clone @grid, true
+      grid: _.cloneDeep @grid, true
       succesfull: active.generator.previousSuccesfull
     })
     active.generator.previousSuccesfull = false
     if yielded.done
-      console.warn 'Generator ended early, perhaps add a while loop?'
+      @warn 'Generator ended early, perhaps add a while loop?'
     return yielded.value
 
-  loop: ->
-    if @running and not @won and not @paused
-      @update()
-
-    #Update The Grid Visuals
-    @grid.update()
-
-    #Update Bot Configurations
-    BotConfig.update @ace
-
-    #Call me again
-    setTimeout(@loop.bind(this), @loopDelay)
-
-  update: ->
+  step: ->
     #Bot whos turn it is
     active = @bots[@activeBot]
 
@@ -115,19 +67,19 @@ module.exports = class
       try
         returned = @iterateGenerator(active)
       catch e
-        console.warn('Bot encounted a runtime error. ', e)
+        @error 'Bot encounted a runtime error. ', e
     else
       #Perform Turn
-      g = _.clone @grid
+      g = _.cloneDeep @grid
       g.bindToSelf()
       try
         returned = active.main g, true
       catch e
-        console.warn('Bot encounted a runtime error. ', e)
+        @error 'Bot encounted a runtime error. ', e
 
     #Check if returned is a generator
     if typeof returned is 'function'
-      active.generator = returned(_.clone @grid, true)
+      active.generator = returned(_.cloneDeep @grid, true)
       returned = @iterateGenerator(active)
 
     #Assuming Hex
@@ -141,9 +93,10 @@ module.exports = class
       #Attempt to take spot, if succesfull swap bots
       if @grid.place x, y, @activeBot
         @updateConnectionsAndCheckWin()
+        @onTake x, y, @activeBot
         @swapActiveBot()
         #Tell Generator it Worked
         if active.generator
           active.generator.previousSuccesfull = true
     else
-      console.warn('Incorrect Bot Return (Not Instance of Hex)')
+      @warn 'Incorrect Bot Return (Not Instance of Hex)'

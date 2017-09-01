@@ -10,7 +10,7 @@ html
       .topbar
         h1.title(style="float: left;") Hex
         span.titletag BETA
-        .glyph.spin.last(onclick="engine.restart()")
+        .glyph.spin.last#RestartGame
           .material-icons replay
       .controls
         button.material-icons#TogglePlay pause
@@ -21,7 +21,7 @@ html
           type="range", 
           max="200", 
           min="0", 
-          value="80"
+          value="150"
         )
       .square
         #hex-grid

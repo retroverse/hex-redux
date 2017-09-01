@@ -1,5 +1,3 @@
-$ = require 'jquery'
-
 module.exports =
   update: (ace)->
     for editor, i in ace.editors
