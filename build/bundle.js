@@ -49098,7 +49098,7 @@ Grid = (function() {
 
   Grid.prototype.onHexChange = function(x, y, v) {
     var ell;
-    ell = $(this.state[y][x]);
+    ell = $(this.state[x][y]);
     ell.removeClass('neutral');
     ell.removeClass('red');
     ell.removeClass('blue');
