@@ -3,6 +3,13 @@ module.exports = (view) ->
   $('#RestartGame').click ({target})->
     view.restart()
 
+  #Help Button
+  $('#Help').click ({target})->
+    window.open(
+      'http://github.com/retroverse/hex-redux/wiki',
+      '_blank'
+    )
+
   #Play Button
   $('#TogglePlay').click ({target})->
     if $(target).html() is 'play_arrow'
