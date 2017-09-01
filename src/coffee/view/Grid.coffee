@@ -18,7 +18,7 @@ class Grid
         @state[j][i] = cell
 
   onHexChange: (x, y, v)->
-    ell = $ @state[y][x]
+    ell = $ @state[x][y]
 
     #Update Looks
     ell.removeClass('neutral')

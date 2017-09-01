@@ -389,7 +389,7 @@ module.exports = {
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(38);
+module.exports = __webpack_require__(39);
 
 
 /***/ }),
@@ -28401,7 +28401,7 @@ module.exports = function() {
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(32);
+__webpack_require__(33);
 
 
 /*
@@ -28413,7 +28413,7 @@ module.exports = function(model) {
   var Editors, Grid, Notifications, Persistence, UIControls, view;
   Editors = __webpack_require__(28);
   Notifications = __webpack_require__(30);
-  UIControls = __webpack_require__(58);
+  UIControls = __webpack_require__(32);
   Persistence = __webpack_require__(31);
   Grid = __webpack_require__(29);
   view = {
@@ -28500,7 +28500,7 @@ module.exports = function(model) {
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(33);
+var content = __webpack_require__(34);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -28508,7 +28508,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(55)(content, options);
+var update = __webpack_require__(56)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -45325,7 +45325,7 @@ var WorkerClient = function(topLevelNamespaces, mod, classname, workerUrl) {
 
     try {
             var workerSrc = mod.src;
-    var Blob = __webpack_require__(57);
+    var Blob = __webpack_require__(58);
     var blob = new Blob([ workerSrc ], { type: 'application/javascript' });
     var blobUrl = (window.URL || window.webkitURL).createObjectURL(blob);
 
@@ -48929,7 +48929,7 @@ module.exports = function(grid) {
 
 var Pathfinding;
 
-Pathfinding = __webpack_require__(40);
+Pathfinding = __webpack_require__(41);
 
 module.exports = function(grid) {
   grid.prototype.initPathFinding = function() {
@@ -49005,7 +49005,7 @@ module.exports = function() {
   ace = __webpack_require__(18);
   __webpack_require__(19);
   __webpack_require__(20);
-  range = __webpack_require__(60);
+  range = __webpack_require__(59);
   defaultbot = "return class RedBot extends Bot {\n    main(grid) {\n        // Get all hexs\n        let all = grid.all()\n\n        // Filter for those that are empty\n        let empty = all.filter(grid.is_empty)\n\n        // Use lodash to get a random one\n        return _.sample(empty)\n    }\n}";
   editors = [];
   ref = $('.editortext');
@@ -49088,7 +49088,7 @@ Grid = (function() {
 
   Grid.prototype.onHexChange = function(x, y, v) {
     var ell;
-    ell = $(this.state[y][x]);
+    ell = $(this.state[x][y]);
     ell.removeClass('neutral');
     ell.removeClass('red');
     ell.removeClass('blue');
@@ -49292,31 +49292,116 @@ module.exports = Persistence;
 
 /***/ }),
 /* 32 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-window.jQuery = window.$ = __webpack_require__(10);
-
-__webpack_require__(39);
+module.exports = function(view) {
+  var button, i, j, len, len1, ref, ref1, toDelay;
+  $('#RestartGame').click(function(arg) {
+    var target;
+    target = arg.target;
+    return view.restart();
+  });
+  $('#TogglePlay').click(function(arg) {
+    var target;
+    target = arg.target;
+    if ($(target).html() === 'play_arrow') {
+      $(target).html('pause');
+      return view.running = true;
+    } else {
+      $(target).html('play_arrow');
+      return view.running = false;
+    }
+  });
+  $('#Step').click(function(arg) {
+    var target;
+    target = arg.target;
+    if (!(view.running || view.won)) {
+      return view.model.step();
+    }
+  });
+  $('#AutoRestart').click(function(arg) {
+    var target;
+    target = arg.target;
+    if ($(target).hasClass('checked')) {
+      $(target).removeClass('checked');
+      return view.autorestart = false;
+    } else {
+      $(target).addClass('checked');
+      return view.autorestart = true;
+    }
+  });
+  ref = $('.editorapply');
+  for (i = 0, len = ref.length; i < len; i++) {
+    button = ref[i];
+    $(button).click(function(arg) {
+      var target;
+      target = arg.target;
+      if ($(target).hasClass('red')) {
+        view.applyBots(['red']);
+      }
+      if ($(target).hasClass('blue')) {
+        return view.applyBots(['blue']);
+      }
+    });
+  }
+  ref1 = $('.editorreset');
+  for (j = 0, len1 = ref1.length; j < len1; j++) {
+    button = ref1[j];
+    $(button).click(function(arg) {
+      var target;
+      target = arg.target;
+      if ($(target).hasClass('red')) {
+        view.resetBots(['red']);
+      }
+      if ($(target).hasClass('blue')) {
+        return view.resetBots(['blue']);
+      }
+    });
+  }
+  toDelay = function(target) {
+    var v;
+    v = +target.val();
+    v /= target.attr('max');
+    v = 1 - v;
+    v *= target.attr('max');
+    return v;
+  };
+  view.delay = toDelay($('#SpeedSlider'));
+  return $('#SpeedSlider').on('change', function(arg) {
+    var target;
+    target = arg.target;
+    return view.delay = toDelay($(target));
+  });
+};
 
 
 /***/ }),
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
+window.jQuery = window.$ = __webpack_require__(10);
+
+__webpack_require__(40);
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
 exports = module.exports = __webpack_require__(9)(undefined);
 // imports
 exports.push([module.i, "@import url(https://fonts.googleapis.com/css?family=Lato);", ""]);
 exports.push([module.i, "@import url(https://fonts.googleapis.com/icon?family=Material+Icons);", ""]);
-exports.i(__webpack_require__(34), "");
+exports.i(__webpack_require__(35), "");
 
 // module
-exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px; }\n\n#hex-grid {\n  height: 70%;\n  width: 70%; }\n  #hex-grid .hex.row:nth-child(1) {\n    margin-left: calc(9.0909% * calc(calc(1 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(2) {\n    margin-left: calc(9.0909% * calc(calc(2 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(3) {\n    margin-left: calc(9.0909% * calc(calc(3 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(4) {\n    margin-left: calc(9.0909% * calc(calc(4 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(5) {\n    margin-left: calc(9.0909% * calc(calc(5 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(6) {\n    margin-left: calc(9.0909% * calc(calc(6 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(7) {\n    margin-left: calc(9.0909% * calc(calc(7 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(8) {\n    margin-left: calc(9.0909% * calc(calc(8 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(9) {\n    margin-left: calc(9.0909% * calc(calc(9 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(10) {\n    margin-left: calc(9.0909% * calc(calc(10 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(11) {\n    margin-left: calc(9.0909% * calc(calc(11 - 1) / 2)); }\n  #hex-grid .hex.row {\n    content: \" \";\n    display: block;\n    width: 100%;\n    height: 9.0909%; }\n    #hex-grid .hex.row .hex.cell {\n      background-size: cover;\n      height: 100%;\n      width: 9.0909%;\n      float: left;\n      color: white;\n      text-align: center;\n      vertical-align: middle;\n      line-height: 100%; }\n      #hex-grid .hex.row .hex.cell.neutral {\n        background-image: url(" + __webpack_require__(36) + "); }\n      #hex-grid .hex.row .hex.cell.red {\n        background-image: url(" + __webpack_require__(37) + "); }\n      #hex-grid .hex.row .hex.cell.blue {\n        background-image: url(" + __webpack_require__(35) + "); }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.editors {\n  width: 70%;\n  height: 100%;\n  margin: auto;\n  margin-top: -160px; }\n\n.editor {\n  width: 50%;\n  height: 400px;\n  float: left;\n  margin-top: 50px; }\n  @media screen and (max-width: 850px) {\n    .editor {\n      float: none;\n      width: 100%; }\n      .editor:first-child {\n        margin-top: 100px; }\n      .editor:last-child {\n        margin-top: 160px; } }\n  .editor .editortitle {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    font-size: 30px;\n    font-weight: bold;\n    margin-bottom: 10px;\n    margin-left: 15px; }\n    .editor .editortitle.red {\n      color: #E52D3D; }\n    .editor .editortitle.blue {\n      color: #655DE2; }\n  .editor .editortext {\n    width: 95%;\n    height: 100%;\n    margin: auto;\n    border-radius: 5px;\n    border: 2px solid #ebebeb; }\n  .editor button.editorapply, .editor button.editorreset {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    margin-top: 20px;\n    margin-left: 20px;\n    margin-bottom: 50px; }\n\n.warning {\n  background: rgba(255, 50, 50, 0.3);\n  position: absolute;\n  width: 100% !important;\n  left: 0 !important; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.title {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  font-size: 60px;\n  font-weight: bold;\n  margin-bottom: 10px;\n  margin-left: 10px; }\n  .title.red {\n    color: #E52D3D; }\n  .title.blue {\n    color: #655DE2; }\n\n.titletag {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  float: left;\n  color: #999999;\n  height: 1px;\n  line-height: 85px;\n  margin-left: 5px; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.glyph {\n  cursor: pointer; }\n  .glyph .material-icons {\n    color: #d2d2d2;\n    line-height: 85px;\n    vertical-align: middle;\n    margin-left: 20px;\n    font-size: 30px;\n    margin-bottom: -20px;\n    user-select: none;\n    transition: .6s;\n    transition-timing-function: ease-out; }\n  .glyph:hover .material-icons {\n    color: #4d4d4d; }\n  .glyph:active .material-icons {\n    color: #ebebeb; }\n  .glyph.spin:hover .material-icons {\n    transform: rotate(-430deg); }\n  .glyph.spin:active .material-icons {\n    transition: .15s; }\n  .glyph.last:after {\n    display: block;\n    content: \"\";\n    clear: both; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.controls {\n  width: 100%;\n  height: min-content;\n  margin-bottom: 20px; }\n  .controls button {\n    margin-left: 10px; }\n    @media screen and (max-width: 650px) {\n      .controls button {\n        width: 70px; } }\n    @media screen and (max-width: 360px) {\n      .controls button {\n        width: 50px; } }\n  .controls input {\n    display: block;\n    width: 330px; }\n    @media screen and (max-width: 650px) {\n      .controls input {\n        width: 240px; } }\n    @media screen and (max-width: 360px) {\n      .controls input {\n        width: 180px; } }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.notifications {\n  position: fixed;\n  z-index: 1;\n  height: 99%;\n  top: 5px;\n  left: calc(100% - 240px);\n  display: flex;\n  flex-direction: column-reverse; }\n  .notifications .notification {\n    width: 240px;\n    height: 104.34783px;\n    margin-bottom: 3px;\n    position: relative; }\n    .notifications .notification .content {\n      font-family: \"Lato\";\n      color: #4d4d4d;\n      width: 88%;\n      height: 80%;\n      margin: auto;\n      margin-bottom: 20%;\n      padding: 10px;\n      word-wrap: break-word;\n      border-radius: 5px;\n      color: white; }\n      .notifications .notification .content h1.notification-title {\n        font-size: 26px; }\n      .notifications .notification .content.error {\n        background-color: #E52D3D; }\n      .notifications .notification .content.message {\n        background-color: #333; }\n\n.container {\n  margin: auto;\n  margin-top: 20px;\n  height: min-content; }\n  @media (orientation: portrait) {\n    .container {\n      width: 70vw; } }\n  @media (orientation: landscape) {\n    .container {\n      width: 70vh; } }\n  @media (orientation: portrait) {\n    .container .square {\n      height: 70vw; } }\n  @media (orientation: landscape) {\n    .container .square {\n      height: 70vh; } }\n", ""]);
+exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px; }\n\n#hex-grid {\n  height: 70%;\n  width: 70%; }\n  #hex-grid .hex.row:nth-child(1) {\n    margin-left: calc(9.0909% * calc(calc(1 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(2) {\n    margin-left: calc(9.0909% * calc(calc(2 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(3) {\n    margin-left: calc(9.0909% * calc(calc(3 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(4) {\n    margin-left: calc(9.0909% * calc(calc(4 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(5) {\n    margin-left: calc(9.0909% * calc(calc(5 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(6) {\n    margin-left: calc(9.0909% * calc(calc(6 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(7) {\n    margin-left: calc(9.0909% * calc(calc(7 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(8) {\n    margin-left: calc(9.0909% * calc(calc(8 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(9) {\n    margin-left: calc(9.0909% * calc(calc(9 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(10) {\n    margin-left: calc(9.0909% * calc(calc(10 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(11) {\n    margin-left: calc(9.0909% * calc(calc(11 - 1) / 2)); }\n  #hex-grid .hex.row {\n    content: \" \";\n    display: block;\n    width: 100%;\n    height: 9.0909%; }\n    #hex-grid .hex.row .hex.cell {\n      background-size: cover;\n      height: 100%;\n      width: 9.0909%;\n      float: left;\n      color: white;\n      text-align: center;\n      vertical-align: middle;\n      line-height: 100%; }\n      #hex-grid .hex.row .hex.cell.neutral {\n        background-image: url(" + __webpack_require__(37) + "); }\n      #hex-grid .hex.row .hex.cell.red {\n        background-image: url(" + __webpack_require__(38) + "); }\n      #hex-grid .hex.row .hex.cell.blue {\n        background-image: url(" + __webpack_require__(36) + "); }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.editors {\n  width: 70%;\n  height: 100%;\n  margin: auto;\n  margin-top: -160px; }\n\n.editor {\n  width: 50%;\n  height: 400px;\n  float: left;\n  margin-top: 50px; }\n  @media screen and (max-width: 850px) {\n    .editor {\n      float: none;\n      width: 100%; }\n      .editor:first-child {\n        margin-top: 100px; }\n      .editor:last-child {\n        margin-top: 160px; } }\n  .editor .editortitle {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    font-size: 30px;\n    font-weight: bold;\n    margin-bottom: 10px;\n    margin-left: 15px; }\n    .editor .editortitle.red {\n      color: #E52D3D; }\n    .editor .editortitle.blue {\n      color: #655DE2; }\n  .editor .editortext {\n    width: 95%;\n    height: 100%;\n    margin: auto;\n    border-radius: 5px;\n    border: 2px solid #ebebeb; }\n  .editor button.editorapply, .editor button.editorreset {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    margin-top: 20px;\n    margin-left: 20px;\n    margin-bottom: 50px; }\n\n.warning {\n  background: rgba(255, 50, 50, 0.3);\n  position: absolute;\n  width: 100% !important;\n  left: 0 !important; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.title {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  font-size: 60px;\n  font-weight: bold;\n  margin-bottom: 10px;\n  margin-left: 10px; }\n  .title.red {\n    color: #E52D3D; }\n  .title.blue {\n    color: #655DE2; }\n\n.titletag {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  float: left;\n  color: #999999;\n  height: 1px;\n  line-height: 85px;\n  margin-left: 5px; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.glyph {\n  cursor: pointer; }\n  .glyph .material-icons {\n    color: #d2d2d2;\n    line-height: 85px;\n    vertical-align: middle;\n    margin-left: 20px;\n    font-size: 30px;\n    margin-bottom: -20px;\n    user-select: none;\n    transition: .6s;\n    transition-timing-function: ease-out; }\n  .glyph:hover .material-icons {\n    color: #4d4d4d; }\n  .glyph:active .material-icons {\n    color: #ebebeb; }\n  .glyph.spin:hover .material-icons {\n    transform: rotate(-430deg); }\n  .glyph.spin:active .material-icons {\n    transition: .15s; }\n  .glyph.last:after {\n    display: block;\n    content: \"\";\n    clear: both; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.controls {\n  width: 100%;\n  height: min-content;\n  margin-bottom: 20px; }\n  .controls button {\n    margin-left: 10px; }\n    @media screen and (max-width: 650px) {\n      .controls button {\n        width: 70px; } }\n    @media screen and (max-width: 360px) {\n      .controls button {\n        width: 50px; } }\n  .controls input {\n    display: block;\n    width: 330px; }\n    @media screen and (max-width: 650px) {\n      .controls input {\n        width: 240px; } }\n    @media screen and (max-width: 360px) {\n      .controls input {\n        width: 180px; } }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.notifications {\n  position: fixed;\n  z-index: 1;\n  height: 99%;\n  top: 5px;\n  left: calc(100% - 240px);\n  display: flex;\n  flex-direction: column-reverse; }\n  .notifications .notification {\n    width: 240px;\n    height: 104.34783px;\n    margin-bottom: 3px;\n    position: relative; }\n    .notifications .notification .content {\n      font-family: \"Lato\";\n      color: #4d4d4d;\n      width: 88%;\n      height: 80%;\n      margin: auto;\n      margin-bottom: 20%;\n      padding: 10px;\n      word-wrap: break-word;\n      border-radius: 5px;\n      color: white; }\n      .notifications .notification .content h1.notification-title {\n        font-size: 26px; }\n      .notifications .notification .content.error {\n        background-color: #E52D3D; }\n      .notifications .notification .content.message {\n        background-color: #333; }\n\n.container {\n  margin: auto;\n  margin-top: 20px;\n  height: min-content; }\n  @media (orientation: portrait) {\n    .container {\n      width: 70vw; } }\n  @media (orientation: landscape) {\n    .container {\n      width: 70vh; } }\n  @media (orientation: portrait) {\n    .container .square {\n      height: 70vw; } }\n  @media (orientation: landscape) {\n    .container .square {\n      height: 70vh; } }\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(9)(undefined);
@@ -49330,25 +49415,25 @@ exports.push([module.i, "input[type=range].hex-slider {\r\n  -webkit-appearance:
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "763144264f53b3b6f35e9c46a9b2b0f2.png";
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "97331676d766a9d2ef95c3dcd4b031f0.png";
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "4828ca02c353a3cc07921bfb0aaa0631.png";
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {// Generated by CoffeeScript 1.8.0
@@ -49724,7 +49809,7 @@ module.exports = __webpack_require__.p + "4828ca02c353a3cc07921bfb0aaa0631.png";
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(14)(module)))
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -50478,38 +50563,38 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(41);
+module.exports = __webpack_require__(42);
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = {
     'Heap'                      : __webpack_require__(3),
     'Node'                      : __webpack_require__(6),
-    'Grid'                      : __webpack_require__(42),
+    'Grid'                      : __webpack_require__(43),
     'Util'                      : __webpack_require__(1),
     'DiagonalMovement'          : __webpack_require__(0),
     'Heuristic'                 : __webpack_require__(2),
     'AStarFinder'               : __webpack_require__(7),
-    'BestFirstFinder'           : __webpack_require__(43),
-    'BreadthFirstFinder'        : __webpack_require__(47),
-    'DijkstraFinder'            : __webpack_require__(48),
+    'BestFirstFinder'           : __webpack_require__(44),
+    'BreadthFirstFinder'        : __webpack_require__(48),
+    'DijkstraFinder'            : __webpack_require__(49),
     'BiAStarFinder'             : __webpack_require__(8),
-    'BiBestFirstFinder'         : __webpack_require__(44),
-    'BiBreadthFirstFinder'      : __webpack_require__(45),
-    'BiDijkstraFinder'          : __webpack_require__(46),
-    'IDAStarFinder'             : __webpack_require__(49),
-    'JumpPointFinder'           : __webpack_require__(54),
+    'BiBestFirstFinder'         : __webpack_require__(45),
+    'BiBreadthFirstFinder'      : __webpack_require__(46),
+    'BiDijkstraFinder'          : __webpack_require__(47),
+    'IDAStarFinder'             : __webpack_require__(50),
+    'JumpPointFinder'           : __webpack_require__(55),
 };
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Node = __webpack_require__(6);
@@ -50760,7 +50845,7 @@ module.exports = Grid;
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var AStarFinder = __webpack_require__(7);
@@ -50794,7 +50879,7 @@ module.exports = BestFirstFinder;
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BiAStarFinder = __webpack_require__(8);
@@ -50828,7 +50913,7 @@ module.exports = BiBestFirstFinder;
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Util = __webpack_require__(1);
@@ -50949,7 +51034,7 @@ module.exports = BiBreadthFirstFinder;
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BiAStarFinder = __webpack_require__(8);
@@ -50979,7 +51064,7 @@ module.exports = BiDijkstraFinder;
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Util = __webpack_require__(1);
@@ -51064,7 +51149,7 @@ module.exports = BreadthFirstFinder;
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var AStarFinder = __webpack_require__(7);
@@ -51094,7 +51179,7 @@ module.exports = DijkstraFinder;
 
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Util       = __webpack_require__(1);
@@ -51309,7 +51394,7 @@ module.exports = IDAStarFinder;
 
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51464,7 +51549,7 @@ module.exports = JPFAlwaysMoveDiagonally;
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51625,7 +51710,7 @@ module.exports = JPFMoveDiagonallyIfAtMostOneObstacle;
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51805,7 +51890,7 @@ module.exports = JPFMoveDiagonallyIfNoObstacles;
 
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -51931,17 +52016,17 @@ module.exports = JPFNeverMoveDiagonally;
 
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
  * @author aniero / https://github.com/aniero
  */
 var DiagonalMovement = __webpack_require__(0);
-var JPFNeverMoveDiagonally = __webpack_require__(53);
-var JPFAlwaysMoveDiagonally = __webpack_require__(50);
-var JPFMoveDiagonallyIfNoObstacles = __webpack_require__(52);
-var JPFMoveDiagonallyIfAtMostOneObstacle = __webpack_require__(51);
+var JPFNeverMoveDiagonally = __webpack_require__(54);
+var JPFAlwaysMoveDiagonally = __webpack_require__(51);
+var JPFMoveDiagonallyIfNoObstacles = __webpack_require__(53);
+var JPFMoveDiagonallyIfAtMostOneObstacle = __webpack_require__(52);
 
 /**
  * Path finder using the Jump Point Search algorithm
@@ -51968,7 +52053,7 @@ module.exports = JumpPointFinder;
 
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -52014,7 +52099,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(56);
+var	fixUrls = __webpack_require__(57);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -52327,7 +52412,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 
@@ -52422,7 +52507,7 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports = get_blob()
@@ -52457,93 +52542,7 @@ function get_blob() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
 
 /***/ }),
-/* 58 */
-/***/ (function(module, exports) {
-
-module.exports = function(view) {
-  var button, i, j, len, len1, ref, ref1, toDelay;
-  $('#RestartGame').click(function(arg) {
-    var target;
-    target = arg.target;
-    return view.restart();
-  });
-  $('#TogglePlay').click(function(arg) {
-    var target;
-    target = arg.target;
-    if ($(target).html() === 'play_arrow') {
-      $(target).html('pause');
-      return view.running = true;
-    } else {
-      $(target).html('play_arrow');
-      return view.running = false;
-    }
-  });
-  $('#Step').click(function(arg) {
-    var target;
-    target = arg.target;
-    if (!(view.running || view.won)) {
-      return view.model.step();
-    }
-  });
-  $('#AutoRestart').click(function(arg) {
-    var target;
-    target = arg.target;
-    if ($(target).hasClass('checked')) {
-      $(target).removeClass('checked');
-      return view.autorestart = false;
-    } else {
-      $(target).addClass('checked');
-      return view.autorestart = true;
-    }
-  });
-  ref = $('.editorapply');
-  for (i = 0, len = ref.length; i < len; i++) {
-    button = ref[i];
-    $(button).click(function(arg) {
-      var target;
-      target = arg.target;
-      if ($(target).hasClass('red')) {
-        view.applyBots(['red']);
-      }
-      if ($(target).hasClass('blue')) {
-        return view.applyBots(['blue']);
-      }
-    });
-  }
-  ref1 = $('.editorreset');
-  for (j = 0, len1 = ref1.length; j < len1; j++) {
-    button = ref1[j];
-    $(button).click(function(arg) {
-      var target;
-      target = arg.target;
-      if ($(target).hasClass('red')) {
-        view.resetBots(['red']);
-      }
-      if ($(target).hasClass('blue')) {
-        return view.resetBots(['blue']);
-      }
-    });
-  }
-  toDelay = function(target) {
-    var v;
-    v = +target.val();
-    v /= target.attr('max');
-    v = 1 - v;
-    v *= target.attr('max');
-    return v;
-  };
-  view.delay = toDelay($('#SpeedSlider'));
-  return $('#SpeedSlider').on('change', function(arg) {
-    var target;
-    target = arg.target;
-    return view.delay = toDelay($(target));
-  });
-};
-
-
-/***/ }),
-/* 59 */,
-/* 60 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/* ***** BEGIN LICENSE BLOCK *****
