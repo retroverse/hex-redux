@@ -28437,6 +28437,7 @@ module.exports = function(model) {
       team = which[k];
       code = this.editors.getCode(team);
       bot = this.model.Bot.fromString(code, this.model.Bot, this.model.Hex);
+      $(".editortitle." + team).html(bot.name);
       results.push(this.model.setBot(team, bot));
     }
     return results;

@@ -35,6 +35,9 @@ module.exports = (model)->
     for team in which
       code = @editors.getCode team
       bot = @model.Bot.fromString code, @model.Bot, @model.Hex
+      $(".editortitle.#{team}").html(
+        bot.name
+      )
       @model.setBot(team, bot)
 
   view.resetBots = (which)->
