@@ -48678,7 +48678,7 @@ module.exports = (function() {
       g = _.cloneDeep(this.grid);
       g.bindToSelf();
       try {
-        returned = active.main(g, true);
+        returned = active.main(g);
       } catch (error) {
         e = error;
         this.error('Bot encounted a runtime error. ', e);
@@ -48700,7 +48700,7 @@ module.exports = (function() {
         }
       }
     } else {
-      return this.warn('Incorrect Bot Return (Not Instance of Hex)');
+      return this.warn("Incorrect Bot Return of " + returned + " (Not Instance of Hex)");
     }
   };
 
@@ -48841,10 +48841,17 @@ module.exports = function(grid) {
     return h.value === 'blue';
   };
   grid.prototype.is_opposite = function(h, o) {
-    if (h.value === 'neutral') {
+    var v1, v2;
+    v1 = o;
+    v2 = h;
+    if (h instanceof Hex) {
+      v1 = h.value;
+      v2 = o.value;
+    }
+    if (v1 === 'neutral' || v2 === 'neutral') {
       return false;
     }
-    return h.value !== o.value;
+    return v1 !== v2;
   };
   grid.prototype.all = function() {
     var column, hexs, k, l, len, len1, ref, row;

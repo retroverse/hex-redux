@@ -73,7 +73,7 @@ module.exports = class
       g = _.cloneDeep @grid
       g.bindToSelf()
       try
-        returned = active.main g, true
+        returned = active.main g
       catch e
         @error 'Bot encounted a runtime error. ', e
 
@@ -99,4 +99,4 @@ module.exports = class
         if active.generator
           active.generator.previousSuccesfull = true
     else
-      @warn 'Incorrect Bot Return (Not Instance of Hex)'
+      @warn "Incorrect Bot Return of #{returned} (Not Instance of Hex)"

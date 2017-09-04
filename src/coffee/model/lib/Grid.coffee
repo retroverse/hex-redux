@@ -40,8 +40,13 @@ module.exports = (grid)->
 
   #Returns whether two given hex's are opposites
   grid.prototype.is_opposite = (h, o)->
-    if h.value is 'neutral' then return false
-    return h.value isnt o.value
+    v1 = o
+    v2 = h
+    if h instanceof Hex
+       v1 = h.value
+       v2 = o.value
+    if v1 is 'neutral' or v2 is 'neutral' then return false
+    return v1 isnt v2
 
   #Returns every hex in the grid
   grid.prototype.all = ->
