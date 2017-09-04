@@ -39,6 +39,7 @@ module.exports = (model)->
         bot.name
       )
       @model.setBot(team, bot)
+      @persistence.save team, code
 
   view.resetBots = (which)->
     for team, i in which

@@ -8,6 +8,9 @@ module.exports = {
     path: path.resolve(__dirname, 'build')
   },
   devtool: 'source-map',
+  devServer: {
+    contentBase: './build'
+  },
   module: {
     rules: [
       {

@@ -36,12 +36,10 @@ class Persistence
       return localStorage.getItem(key)
     return undefined
 
-  save: (which, brace)->
+  save: (which, code)->
     if this.available
-      val = brace.editors[which].getValue()
-      col = if which is 0 then 'red' else 'blue'
-      key = "hex-bot-#{col}"
-      localStorage.setItem(key, val)
+      key = "hex-bot-#{which}"
+      localStorage.setItem(key, code)
 
 ##Export
 module.exports = Persistence
