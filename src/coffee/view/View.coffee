@@ -48,6 +48,15 @@ module.exports = (model)->
       editor.setValue(@editors.defaultbot, -1)
     view.applyBots(which)
 
+  view.play = ->
+    $('#TogglePlay').html 'pause'
+    view.running = true
+    view.notifications.clear()
+
+  view.pause = ->
+    $('#TogglePlay').html 'play_arrow'
+    view.running = false
+
   view.loop = ->
     if @running and not @won
       @model.step()
@@ -85,6 +94,12 @@ module.exports = (model)->
   view.model.onWin = view.onWin.bind(view)
   view.model.onTake = view.onTake.bind(view)
 
+  view.model.error = (title, message) ->
+    view.notifications.post(title, message)
+    view.pause()
+
+  view.model.warn = (title, message) ->
+    view.notifications.post("Warning", title)
   #Start The Loop
   view.loop()
 

@@ -47,11 +47,15 @@ module.exports = ->
         duration: 300,
         "top": 0
       })
+  clear = ->
+    this.state.notifications = []
+    $('.notifications').html('')
 
   return {
     state: {
       notifications: []
     },
     post,
-    pop
+    pop,
+    clear
   }

@@ -13,11 +13,9 @@ module.exports = (view) ->
   #Play Button
   $('#TogglePlay').click ({target})->
     if $(target).html() is 'play_arrow'
-      $(target).html 'pause'
-      view.running = true
+      view.play()
     else
-      $(target).html 'play_arrow'
-      view.running = false
+      view.pause()
 
   #Step Button
   $('#Step').click ({target})->
