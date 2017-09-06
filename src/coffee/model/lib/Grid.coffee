@@ -4,7 +4,7 @@ _ = require 'lodash'
 module.exports = (grid)->
   grid.prototype.clone = ->
     o = _.cloneDeep @
-    o.bindToSelf o
+    o.bindToSelf()
     return o
 
   #Gets a hex from a set point
@@ -16,6 +16,17 @@ module.exports = (grid)->
     hex = this.state[x][y]
     if hex
       return hex
+
+  grid.prototype.take = (hex, val) ->
+    g = this.clone()
+    if g.state[hex.x][hex.y].value is 'neutral'
+      g.state[hex.x][hex.y].value = val
+    return g
+
+  grid.prototype.set = (hex, val) ->
+    g = this.clone()
+    g.state[hex.x][hex.y].value = val
+    return g
 
   #Returns whether a hex is empty
   grid.prototype.is_empty =
