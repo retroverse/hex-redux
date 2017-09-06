@@ -42,10 +42,10 @@ module.exports = (model)->
       @persistence.save team, code
 
   view.resetBots = (which)->
-    for team, i in which
+    for team in which
       @persistence.clear(team)
-      for editor, j in @editors.editors
-        if j is i then editor.setValue(@editors.defaultbot, -1)
+      editor = @editors.editors[if team is 'red' then 0 else 1]
+      editor.setValue(@editors.defaultbot, -1)
     view.applyBots(which)
 
   view.loop = ->

@@ -29,7 +29,7 @@ class Grid
         node.value = val
         return true
     else
-      console.warn 'Invalid Arguments (No Such Node)'
+      console.warn 'Invalid Arguments (No Such Hex)'
       return
 
 #Prototype
