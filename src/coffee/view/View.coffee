@@ -35,11 +35,15 @@ module.exports = (model)->
     for team in which
       code = @editors.getCode team
       bot = @model.Bot.fromString code, @model.Bot, @model.Hex
-      $(".editortitle.#{team}").html(
-        bot.name
-      )
-      @model.setBot(team, bot)
-      @persistence.save team, code
+      if bot instanceof Array
+        view.error(bot[0], bot[1])
+      else
+        $(".editortitle.#{team}").html(
+          bot.name
+        )
+        @model.setBot(team, bot)
+        @persistence.save team,
+
 
   view.resetBots = (which)->
     for team in which
@@ -56,6 +60,13 @@ module.exports = (model)->
   view.pause = ->
     $('#TogglePlay').html 'play_arrow'
     view.running = false
+
+  view.error = (title, message) ->
+    view.notifications.post(title, message)
+    view.pause()
+
+  view.warn = (title, message) ->
+    view.notifications.post("Warning", title)
 
   view.loop = ->
     if @running and not @won
@@ -94,12 +105,9 @@ module.exports = (model)->
   view.model.onWin = view.onWin.bind(view)
   view.model.onTake = view.onTake.bind(view)
 
-  view.model.error = (title, message) ->
-    view.notifications.post(title, message)
-    view.pause()
+  view.model.error = view.error
 
-  view.model.warn = (title, message) ->
-    view.notifications.post("Warning", title)
+  view.model.warn = view.warn
   #Start The Loop
   view.loop()
 
