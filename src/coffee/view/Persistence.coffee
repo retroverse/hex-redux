@@ -19,20 +19,12 @@ class Persistence
 
   clear: (which)->
     if this.available
-      if which is 'red'
-        localStorage.removeItem('hex-bot-red')
-        return
-      if which is 'blue'
-        localStorage.removeItem('hex-bot-blue')
-        return
-      localStorage.removeItem('hex-bot-blue')
-      localStorage.removeItem('hex-bot-red')
+      localStorage.removeItem("hex-bot-#{which}")
 
 
   get: (which)->
     if this.available
-      col = if which is 0 then 'red' else 'blue'
-      key = "hex-bot-#{col}"
+      key = "hex-bot-#{which}"
       return localStorage.getItem(key)
     return undefined
 

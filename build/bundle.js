@@ -48723,7 +48723,7 @@ module.exports = (function() {
         }
       }
     } else {
-      return this.warn("Incorrect Bot Return of " + returned + " (Not Instance of Hex)");
+      return this.warn("Incorrect Bot Return of " + returned + " (Not Instance of Hex)", this.activeBot);
     }
   };
 
@@ -49343,24 +49343,14 @@ Persistence = (function() {
 
   Persistence.prototype.clear = function(which) {
     if (this.available) {
-      if (which === 'red') {
-        localStorage.removeItem('hex-bot-red');
-        return;
-      }
-      if (which === 'blue') {
-        localStorage.removeItem('hex-bot-blue');
-        return;
-      }
-      localStorage.removeItem('hex-bot-blue');
-      return localStorage.removeItem('hex-bot-red');
+      return localStorage.removeItem("hex-bot-" + which);
     }
   };
 
   Persistence.prototype.get = function(which) {
-    var col, key;
+    var key;
     if (this.available) {
-      col = which === 0 ? 'red' : 'blue';
-      key = "hex-bot-" + col;
+      key = "hex-bot-" + which;
       return localStorage.getItem(key);
     }
     return void 0;
