@@ -5,7 +5,7 @@ $notification-offset: 5px
 
 .notifications
   position: fixed
-  z-index: 1
+  z-index: 10
   height: 99%
   top: 5px
   left: calc(100% - #{$notification-width})
@@ -32,8 +32,27 @@ $notification-offset: 5px
       h1.notification-title
         font-size: 26px
 
-      &.error
+      .count
+        margin-top: 5px
+        background: white
+        border-radius: 3px
+        width: 50px
+        padding: 2px
+        max-height: 15px
+        line-height: 15px
+        vertical-align: middle
+        transition: .1s
+        opacity: 0
+
+      &.red
         background-color: $hex-red
+        .count
+          color: $hex-red
+
+      &.blue
+        background-color: $hex-blue
+        .count
+          color: $hex-blue
 
       &.message
         background-color: $hex-neutral

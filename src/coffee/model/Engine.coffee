@@ -17,8 +17,8 @@ module.exports = class
 
     @onWin = (who, path, state) ->
     @onTake = (x, y, c) ->
-    @warn = (x) -> console.warn x
-    @error = (x, err) -> console.warn x, err
+    @warn = (x, which) -> console.warn x
+    @error = (x, err, which) -> console.warn x, err
 
   win: (who, path)->
     unless @won
@@ -55,7 +55,7 @@ module.exports = class
     })
     active.generator.previousSuccesfull = false
     if yielded.done
-      @warn 'Generator ended early, perhaps add a while loop?'
+      @warn('Generator ended early, perhaps add a while loop?', @activeBot)
     return yielded.value
 
   step: ->
@@ -67,7 +67,7 @@ module.exports = class
       try
         returned = @iterateGenerator(active)
       catch e
-        @error 'Bot encounted a runtime error. ', e
+        @error('Bot encounted a runtime error. ', e, @activeBot)
     else
       #Perform Turn
       g = _.cloneDeep @grid
@@ -75,7 +75,7 @@ module.exports = class
       try
         returned = active.main g, true
       catch e
-        @error 'Bot encounted a runtime error. ', e
+        @error('Bot encounted a runtime error. ', e, @activeBot)
 
     #Check if returned is a generator
     if typeof returned is 'function'
@@ -99,4 +99,4 @@ module.exports = class
         if active.generator
           active.generator.previousSuccesfull = true
     else
-      @warn 'Incorrect Bot Return (Not Instance of Hex)'
+      @warn('Incorrect Bot Return (Not Instance of Hex)', @activeBot)

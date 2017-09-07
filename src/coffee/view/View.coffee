@@ -33,10 +33,13 @@ module.exports = (model)->
   #Callbacks
   view.applyBots = (which)->
     for team in which
+      view.notifications.clear(team)
       code = @editors.getCode team
       bot = @model.Bot.fromString code, @model.Bot, @model.Hex
       if bot instanceof Array
-        view.error(bot[0], bot[1])
+        if bot[1]
+          view.error("Construction Error: #{bot[0]}", bot[1], team)
+        view.error('Construction Error', bot[0], team)
       else
         $(".editortitle.#{team}").html(
           bot.name
@@ -61,12 +64,12 @@ module.exports = (model)->
     $('#TogglePlay').html 'play_arrow'
     view.running = false
 
-  view.error = (title, message) ->
-    view.notifications.post(title, message)
+  view.error = (title, message, which) ->
+    view.notifications.post(title, message, which)
     view.pause()
 
-  view.warn = (title, message) ->
-    view.notifications.post("Warning", title)
+  view.warn = (title, which) ->
+    view.notifications.post("Warning", title, which)
 
   view.loop = ->
     if @running and not @won
@@ -78,6 +81,7 @@ module.exports = (model)->
 
   #Callbacks
   view.restart = ()->
+    view.notifications.clear()
     @model.restart()
     @grid.onRestart()
     setTimeout(
@@ -104,10 +108,9 @@ module.exports = (model)->
 
   view.model.onWin = view.onWin.bind(view)
   view.model.onTake = view.onTake.bind(view)
-
   view.model.error = view.error
-
   view.model.warn = view.warn
+
   #Start The Loop
   view.loop()
 
