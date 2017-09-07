@@ -28431,31 +28431,51 @@ module.exports = function(model) {
   view.persistence.init();
   view.editors.checkPersistence(view.persistence);
   view.applyBots = function(which) {
-    var bot, code, k, len, results, team;
+    var bot, code, i, len, results, team;
     results = [];
-    for (k = 0, len = which.length; k < len; k++) {
-      team = which[k];
+    for (i = 0, len = which.length; i < len; i++) {
+      team = which[i];
+      view.notifications.clear(team);
       code = this.editors.getCode(team);
       bot = this.model.Bot.fromString(code, this.model.Bot, this.model.Hex);
-      $(".editortitle." + team).html(bot.name);
-      results.push(this.model.setBot(team, bot));
+      if (bot instanceof Array) {
+        if (bot[1]) {
+          view.error("Construction Error: " + bot[0], bot[1], team);
+        }
+        results.push(view.error('Construction Error', bot[0], team));
+      } else {
+        $(".editortitle." + team).html(bot.name);
+        this.model.setBot(team, bot);
+        results.push(this.persistence.save(team));
+      }
     }
     return results;
   };
   view.resetBots = function(which) {
-    var editor, i, j, k, l, len, len1, ref, team;
-    for (i = k = 0, len = which.length; k < len; i = ++k) {
+    var editor, i, len, team;
+    for (i = 0, len = which.length; i < len; i++) {
       team = which[i];
       this.persistence.clear(team);
-      ref = this.editors.editors;
-      for (j = l = 0, len1 = ref.length; l < len1; j = ++l) {
-        editor = ref[j];
-        if (j === i) {
-          editor.setValue(this.editors.defaultbot, -1);
-        }
-      }
+      editor = this.editors.editors[team === 'red' ? 0 : 1];
+      editor.setValue(this.editors.defaultbot, -1);
     }
     return view.applyBots(which);
+  };
+  view.play = function() {
+    $('#TogglePlay').html('pause');
+    view.running = true;
+    return view.notifications.clear();
+  };
+  view.pause = function() {
+    $('#TogglePlay').html('play_arrow');
+    return view.running = false;
+  };
+  view.error = function(title, message, which) {
+    view.notifications.post(title, message, which);
+    return view.pause();
+  };
+  view.warn = function(title, which) {
+    return view.notifications.post("Warning", title, which);
   };
   view.loop = function() {
     if (this.running && !this.won) {
@@ -28465,6 +28485,7 @@ module.exports = function(model) {
   };
   view.applyBots(['red', 'blue']);
   view.restart = function() {
+    view.notifications.clear();
     this.model.restart();
     this.grid.onRestart();
     return setTimeout((function() {
@@ -28489,6 +28510,8 @@ module.exports = function(model) {
   };
   view.model.onWin = view.onWin.bind(view);
   view.model.onTake = view.onTake.bind(view);
+  view.model.error = view.error;
+  view.model.warn = view.warn;
   view.loop();
   return view;
 };
@@ -48605,10 +48628,10 @@ module.exports = (function() {
     this.Grid = Grid;
     this.onWin = function(who, path, state) {};
     this.onTake = function(x, y, c) {};
-    this.warn = function(x) {
+    this.warn = function(x, which) {
       return console.warn(x);
     };
-    this.error = function(x, err) {
+    this.error = function(x, err, which) {
       return console.warn(x, err);
     };
   }
@@ -48659,7 +48682,7 @@ module.exports = (function() {
     });
     active.generator.previousSuccesfull = false;
     if (yielded.done) {
-      this.warn('Generator ended early, perhaps add a while loop?');
+      this.warn('Generator ended early, perhaps add a while loop?', this.activeBot);
     }
     return yielded.value;
   };
@@ -48672,7 +48695,7 @@ module.exports = (function() {
         returned = this.iterateGenerator(active);
       } catch (error) {
         e = error;
-        this.error('Bot encounted a runtime error. ', e);
+        this.error('Bot encounted a runtime error. ', e, this.activeBot);
       }
     } else {
       g = _.cloneDeep(this.grid);
@@ -48681,7 +48704,7 @@ module.exports = (function() {
         returned = active.main(g);
       } catch (error) {
         e = error;
-        this.error('Bot encounted a runtime error. ', e);
+        this.error('Bot encounted a runtime error. ', e, this.activeBot);
       }
     }
     if (typeof returned === 'function') {
@@ -48768,7 +48791,7 @@ Grid = (function() {
         return true;
       }
     } else {
-      console.warn('Invalid Arguments (No Such Node)');
+      console.warn('Invalid Arguments (No Such Hex)');
     }
   };
 
@@ -48797,7 +48820,7 @@ module.exports = function(grid) {
   grid.prototype.clone = function() {
     var o;
     o = _.cloneDeep(this);
-    o.bindToSelf(o);
+    o.bindToSelf();
     return o;
   };
   grid.prototype.get = function(x, y, isSilent) {
@@ -48815,6 +48838,20 @@ module.exports = function(grid) {
     if (hex) {
       return hex;
     }
+  };
+  grid.prototype.take = function(hex, val) {
+    var g;
+    g = this.clone();
+    if (g.state[hex.x][hex.y].value === 'neutral') {
+      g.state[hex.x][hex.y].value = val;
+    }
+    return g;
+  };
+  grid.prototype.set = function(hex, val) {
+    var g;
+    g = this.clone();
+    g.state[hex.x][hex.y].value = val;
+    return g;
   };
   grid.prototype.is_empty = grid.prototype.is_neutral = function(h, y) {
     if (this instanceof grid) {
@@ -48956,8 +48993,8 @@ module.exports = function(grid) {
       diagonalMovement: Pathfinding.DiagonalMovement.Always
     });
   };
-  grid.hasWon = function(which) {
-    return !!grid.prototype.updateConnections(which);
+  grid.prototype.hasWon = function(which) {
+    return !!grid.updateConnections(which);
   };
   return grid.prototype.updateConnections = function(which) {
     var endX, endY, finder, goal, hex, i, j, k, len, len1, len2, path, paths, ref, row, to;
@@ -49187,21 +49224,39 @@ module.exports = Grid;
 /***/ (function(module, exports) {
 
 module.exports = function() {
-  var pop, post;
+  var clear, pop, post;
   post = function(title, msg, c) {
-    var h, j, len, noti, ref;
+    var h, j, k, len, len1, noti, ref, ref1;
     if (c == null) {
-      c = 'error';
+      c = 'message';
     }
-    h = "<div class='notification'> <div class='content " + c + "'> " + (title ? "<h1 class='notification-title'>" + title + "</h1>" : "") + " " + (msg ? "<p>" + msg + "</p>" : "") + " </div> </div>";
+    ref = this.state.notifications;
+    for (j = 0, len = ref.length; j < len; j++) {
+      noti = ref[j];
+      if (noti.title === title && noti.message === msg && noti.cl === c) {
+        noti.incCount();
+        return;
+      }
+    }
+    h = "<div class='notification'> <div class='content " + c + "'> " + (title ? "<h1 class='notification-title'>" + title + "</h1>" : "") + " " + (msg ? "<p>" + msg + "</p>" : "") + " <div class='count'></div> </div> </div>";
     h = $(h);
+    h.count = 1;
+    h.title = title;
+    h.message = msg;
+    h.cl = c;
+    h.incCount = function(n) {
+      return this.children().children().last().transition({
+        duration: 300,
+        'opacity': 1
+      }).html('x' + (this.count += 1));
+    };
     $('.notifications').prepend(h);
     h.css("opacity", "0.4").transition({
       opacity: "1"
     }, 300);
-    ref = this.state.notifications;
-    for (j = 0, len = ref.length; j < len; j++) {
-      noti = ref[j];
+    ref1 = this.state.notifications;
+    for (k = 0, len1 = ref1.length; k < len1; k++) {
+      noti = ref1[k];
       noti.css("top", 100).transition({
         duration: 300,
         "top": 0
@@ -49227,12 +49282,32 @@ module.exports = function() {
     }
     return results;
   };
+  clear = function(filter) {
+    var change, j, len, noti;
+    change = filter ? this.state.notifications.filter(function(n) {
+      return n.children().first().hasClass(filter);
+    }) : this.state.notifications;
+    for (j = 0, len = change.length; j < len; j++) {
+      noti = change[j];
+      noti.transition({
+        duration: 200,
+        'opacity': 0
+      });
+      setTimeout((function() {
+        return noti.remove();
+      }), 200);
+    }
+    return this.state.notifications = filter ? this.state.notifications.filter(function(n) {
+      return !n.children().first().hasClass(filter);
+    }) : [];
+  };
   return {
     state: {
       notifications: []
     },
     post: post,
-    pop: pop
+    pop: pop,
+    clear: clear
   };
 };
 
@@ -49291,13 +49366,11 @@ Persistence = (function() {
     return void 0;
   };
 
-  Persistence.prototype.save = function(which, brace) {
-    var col, key, val;
+  Persistence.prototype.save = function(which, code) {
+    var key;
     if (this.available) {
-      val = brace.editors[which].getValue();
-      col = which === 0 ? 'red' : 'blue';
-      key = "hex-bot-" + col;
-      return localStorage.setItem(key, val);
+      key = "hex-bot-" + which;
+      return localStorage.setItem(key, code);
     }
   };
 
@@ -49328,11 +49401,9 @@ module.exports = function(view) {
     var target;
     target = arg.target;
     if ($(target).html() === 'play_arrow') {
-      $(target).html('pause');
-      return view.running = true;
+      return view.play();
     } else {
-      $(target).html('play_arrow');
-      return view.running = false;
+      return view.pause();
     }
   });
   $('#Step').click(function(arg) {
@@ -49418,7 +49489,7 @@ exports.push([module.i, "@import url(https://fonts.googleapis.com/icon?family=Ma
 exports.i(__webpack_require__(35), "");
 
 // module
-exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px; }\n\n#hex-grid {\n  height: 70%;\n  width: 70%; }\n  #hex-grid .hex.row:nth-child(1) {\n    margin-left: calc(9.0909% * calc(calc(1 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(2) {\n    margin-left: calc(9.0909% * calc(calc(2 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(3) {\n    margin-left: calc(9.0909% * calc(calc(3 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(4) {\n    margin-left: calc(9.0909% * calc(calc(4 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(5) {\n    margin-left: calc(9.0909% * calc(calc(5 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(6) {\n    margin-left: calc(9.0909% * calc(calc(6 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(7) {\n    margin-left: calc(9.0909% * calc(calc(7 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(8) {\n    margin-left: calc(9.0909% * calc(calc(8 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(9) {\n    margin-left: calc(9.0909% * calc(calc(9 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(10) {\n    margin-left: calc(9.0909% * calc(calc(10 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(11) {\n    margin-left: calc(9.0909% * calc(calc(11 - 1) / 2)); }\n  #hex-grid .hex.row {\n    content: \" \";\n    display: block;\n    width: 100%;\n    height: 9.0909%; }\n    #hex-grid .hex.row .hex.cell {\n      background-size: cover;\n      height: 100%;\n      width: 9.0909%;\n      float: left;\n      color: white;\n      text-align: center;\n      vertical-align: middle;\n      line-height: 100%; }\n      #hex-grid .hex.row .hex.cell.neutral {\n        background-image: url(" + __webpack_require__(37) + "); }\n      #hex-grid .hex.row .hex.cell.red {\n        background-image: url(" + __webpack_require__(38) + "); }\n      #hex-grid .hex.row .hex.cell.blue {\n        background-image: url(" + __webpack_require__(36) + "); }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.editors {\n  width: 70%;\n  height: 100%;\n  margin: auto;\n  margin-top: -160px; }\n\n.editor {\n  width: 50%;\n  height: 400px;\n  float: left;\n  margin-top: 50px; }\n  @media screen and (max-width: 850px) {\n    .editor {\n      float: none;\n      width: 100%; }\n      .editor:first-child {\n        margin-top: 100px; }\n      .editor:last-child {\n        margin-top: 160px; } }\n  .editor .editortitle {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    font-size: 30px;\n    font-weight: bold;\n    margin-bottom: 10px;\n    margin-left: 15px; }\n    .editor .editortitle.red {\n      color: #E52D3D; }\n    .editor .editortitle.blue {\n      color: #655DE2; }\n  .editor .editortext {\n    width: 95%;\n    height: 100%;\n    margin: auto;\n    border-radius: 5px;\n    border: 2px solid #ebebeb; }\n  .editor button.editorapply, .editor button.editorreset {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    margin-top: 20px;\n    margin-left: 20px;\n    margin-bottom: 50px; }\n\n.warning {\n  background: rgba(255, 50, 50, 0.3);\n  position: absolute;\n  width: 100% !important;\n  left: 0 !important; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.title {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  font-size: 60px;\n  font-weight: bold;\n  margin-bottom: 10px;\n  margin-left: 10px; }\n  .title.red {\n    color: #E52D3D; }\n  .title.blue {\n    color: #655DE2; }\n\n.titletag {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  float: left;\n  color: #999999;\n  height: 1px;\n  line-height: 85px;\n  margin-left: 5px; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.glyph {\n  cursor: pointer; }\n  .glyph .material-icons {\n    color: #d2d2d2;\n    line-height: 85px;\n    vertical-align: middle;\n    margin-left: 20px;\n    font-size: 30px;\n    margin-bottom: -20px;\n    user-select: none;\n    transition: .6s;\n    transition-timing-function: ease-out;\n    float: left; }\n  .glyph:hover .material-icons {\n    color: #4d4d4d; }\n  .glyph:active .material-icons {\n    color: #ebebeb; }\n  .glyph.spin:hover .material-icons {\n    transform: rotate(-430deg); }\n  .glyph.spin:active .material-icons {\n    transition: .15s; }\n  .glyph.last:after {\n    float: none;\n    display: block;\n    content: \"\";\n    clear: both; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.controls {\n  width: 100%;\n  height: min-content;\n  margin-bottom: 20px; }\n  .controls button {\n    margin-left: 10px; }\n    @media screen and (max-width: 650px) {\n      .controls button {\n        width: 70px; } }\n    @media screen and (max-width: 360px) {\n      .controls button {\n        width: 50px; } }\n  .controls input {\n    display: block;\n    width: 330px; }\n    @media screen and (max-width: 650px) {\n      .controls input {\n        width: 240px; } }\n    @media screen and (max-width: 360px) {\n      .controls input {\n        width: 180px; } }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.notifications {\n  position: fixed;\n  z-index: 1;\n  height: 99%;\n  top: 5px;\n  left: calc(100% - 240px);\n  display: flex;\n  flex-direction: column-reverse; }\n  .notifications .notification {\n    width: 240px;\n    height: 104.34783px;\n    margin-bottom: 3px;\n    position: relative; }\n    .notifications .notification .content {\n      font-family: \"Lato\";\n      color: #4d4d4d;\n      width: 88%;\n      height: 80%;\n      margin: auto;\n      margin-bottom: 20%;\n      padding: 10px;\n      word-wrap: break-word;\n      border-radius: 5px;\n      color: white; }\n      .notifications .notification .content h1.notification-title {\n        font-size: 26px; }\n      .notifications .notification .content.error {\n        background-color: #E52D3D; }\n      .notifications .notification .content.message {\n        background-color: #333; }\n\n.container {\n  margin: auto;\n  margin-top: 20px;\n  height: min-content; }\n  @media (orientation: portrait) {\n    .container {\n      width: 70vw; } }\n  @media (orientation: landscape) {\n    .container {\n      width: 70vh; } }\n  @media (orientation: portrait) {\n    .container .square {\n      height: 70vw; } }\n  @media (orientation: landscape) {\n    .container .square {\n      height: 70vh; } }\n", ""]);
+exports.push([module.i, "* {\n  margin: 0px;\n  padding: 0px; }\n\n#hex-grid {\n  height: 70%;\n  width: 70%; }\n  #hex-grid .hex.row:nth-child(1) {\n    margin-left: calc(9.0909% * calc(calc(1 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(2) {\n    margin-left: calc(9.0909% * calc(calc(2 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(3) {\n    margin-left: calc(9.0909% * calc(calc(3 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(4) {\n    margin-left: calc(9.0909% * calc(calc(4 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(5) {\n    margin-left: calc(9.0909% * calc(calc(5 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(6) {\n    margin-left: calc(9.0909% * calc(calc(6 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(7) {\n    margin-left: calc(9.0909% * calc(calc(7 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(8) {\n    margin-left: calc(9.0909% * calc(calc(8 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(9) {\n    margin-left: calc(9.0909% * calc(calc(9 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(10) {\n    margin-left: calc(9.0909% * calc(calc(10 - 1) / 2)); }\n  #hex-grid .hex.row:nth-child(11) {\n    margin-left: calc(9.0909% * calc(calc(11 - 1) / 2)); }\n  #hex-grid .hex.row {\n    content: \" \";\n    display: block;\n    width: 100%;\n    height: 9.0909%; }\n    #hex-grid .hex.row .hex.cell {\n      background-size: cover;\n      height: 100%;\n      width: 9.0909%;\n      float: left;\n      color: white;\n      text-align: center;\n      vertical-align: middle;\n      line-height: 100%; }\n      #hex-grid .hex.row .hex.cell.neutral {\n        background-image: url(" + __webpack_require__(37) + "); }\n      #hex-grid .hex.row .hex.cell.red {\n        background-image: url(" + __webpack_require__(38) + "); }\n      #hex-grid .hex.row .hex.cell.blue {\n        background-image: url(" + __webpack_require__(36) + "); }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.editors {\n  width: 70%;\n  height: 100%;\n  margin: auto;\n  margin-top: -160px; }\n\n.editor {\n  width: 50%;\n  height: 400px;\n  float: left;\n  margin-top: 50px; }\n  @media screen and (max-width: 850px) {\n    .editor {\n      float: none;\n      width: 100%; }\n      .editor:first-child {\n        margin-top: 100px; }\n      .editor:last-child {\n        margin-top: 160px; } }\n  .editor .editortitle {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    font-size: 30px;\n    font-weight: bold;\n    margin-bottom: 10px;\n    margin-left: 15px; }\n    .editor .editortitle.red {\n      color: #E52D3D; }\n    .editor .editortitle.blue {\n      color: #655DE2; }\n  .editor .editortext {\n    width: 95%;\n    height: 100%;\n    margin: auto;\n    border-radius: 5px;\n    border: 2px solid #ebebeb; }\n  .editor button.editorapply, .editor button.editorreset {\n    font-family: \"Lato\";\n    color: #4d4d4d;\n    margin-top: 20px;\n    margin-left: 20px;\n    margin-bottom: 50px; }\n\n.warning {\n  background: rgba(255, 50, 50, 0.3);\n  position: absolute;\n  width: 100% !important;\n  left: 0 !important; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.title {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  font-size: 60px;\n  font-weight: bold;\n  margin-bottom: 10px;\n  margin-left: 10px; }\n  .title.red {\n    color: #E52D3D; }\n  .title.blue {\n    color: #655DE2; }\n\n.titletag {\n  font-family: \"Lato\";\n  color: #4d4d4d;\n  float: left;\n  color: #999999;\n  height: 1px;\n  line-height: 85px;\n  margin-left: 5px; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.glyph {\n  cursor: pointer; }\n  .glyph .material-icons {\n    color: #d2d2d2;\n    line-height: 85px;\n    vertical-align: middle;\n    margin-left: 20px;\n    font-size: 30px;\n    margin-bottom: -20px;\n    user-select: none;\n    transition: .6s;\n    transition-timing-function: ease-out;\n    float: left; }\n  .glyph:hover .material-icons {\n    color: #4d4d4d; }\n  .glyph:active .material-icons {\n    color: #ebebeb; }\n  .glyph.spin:hover .material-icons {\n    transform: rotate(-430deg); }\n  .glyph.spin:active .material-icons {\n    transition: .15s; }\n  .glyph.last:after {\n    float: none;\n    display: block;\n    content: \"\";\n    clear: both; }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.controls {\n  width: 100%;\n  height: min-content;\n  margin-bottom: 20px; }\n  .controls button {\n    margin-left: 10px; }\n    @media screen and (max-width: 650px) {\n      .controls button {\n        width: 70px; } }\n    @media screen and (max-width: 360px) {\n      .controls button {\n        width: 50px; } }\n  .controls input {\n    display: block;\n    width: 330px; }\n    @media screen and (max-width: 650px) {\n      .controls input {\n        width: 240px; } }\n    @media screen and (max-width: 360px) {\n      .controls input {\n        width: 180px; } }\n\n.label {\n  font-family: \"Lato\";\n  color: #4d4d4d; }\n\nbutton {\n  outline: none;\n  border: none;\n  border-radius: 5px;\n  transition: 0.2s;\n  background-color: #ebebeb;\n  width: 100px;\n  height: 30px;\n  color: #4d4d4d; }\n  button:hover {\n    background-color: #d2d2d2; }\n  button:active, button.checked {\n    background-color: #4d4d4d;\n    color: #ebebeb; }\n\n.notifications {\n  position: fixed;\n  z-index: 10;\n  height: 99%;\n  top: 5px;\n  left: calc(100% - 240px);\n  display: flex;\n  flex-direction: column-reverse; }\n  .notifications .notification {\n    width: 240px;\n    margin-bottom: 3px;\n    position: relative; }\n    .notifications .notification .content {\n      font-family: \"Lato\";\n      color: #4d4d4d;\n      width: 88%;\n      height: 80%;\n      margin: auto;\n      margin-bottom: 5%;\n      padding: 10px;\n      word-wrap: break-word;\n      border-radius: 5px;\n      color: white; }\n      .notifications .notification .content h1.notification-title {\n        font-size: 26px; }\n      .notifications .notification .content .count {\n        margin-top: 5px;\n        background: white;\n        border-radius: 3px;\n        width: 50px;\n        padding: 2px;\n        max-height: 15px;\n        line-height: 15px;\n        vertical-align: middle;\n        transition: .1s;\n        opacity: 0; }\n      .notifications .notification .content.red {\n        background-color: #E52D3D; }\n        .notifications .notification .content.red .count {\n          color: #E52D3D; }\n      .notifications .notification .content.blue {\n        background-color: #655DE2; }\n        .notifications .notification .content.blue .count {\n          color: #655DE2; }\n      .notifications .notification .content.message {\n        background-color: #333; }\n\n.container {\n  margin: auto;\n  margin-top: 20px;\n  height: min-content; }\n  @media (orientation: portrait) {\n    .container {\n      width: 70vw; } }\n  @media (orientation: landscape) {\n    .container {\n      width: 70vh; } }\n  @media (orientation: portrait) {\n    .container .square {\n      height: 70vw; } }\n  @media (orientation: landscape) {\n    .container .square {\n      height: 70vh; } }\n", ""]);
 
 // exports
 

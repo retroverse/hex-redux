@@ -99,8 +99,4 @@ module.exports = class
         if active.generator
           active.generator.previousSuccesfull = true
     else
-<<<<<<< HEAD
       @warn "Incorrect Bot Return of #{returned} (Not Instance of Hex)"
-=======
-      @warn('Incorrect Bot Return (Not Instance of Hex)', @activeBot)
->>>>>>> master
