@@ -11,6 +11,7 @@ module.exports = (model)->
   Notifications = require('./Notifications')
   UIControls = require('./UIControls')
   Persistence = require('./Persistence')
+  Statistics = require('./Statistics')
   Grid = require('./Grid')
 
   view =
@@ -18,6 +19,7 @@ module.exports = (model)->
     notifications: Notifications()
     editors: Editors()
     persistence: new Persistence
+    statistics: new Statistics
     grid: new Grid '#hex-grid'
 
     running: true
@@ -33,7 +35,8 @@ module.exports = (model)->
   #Callbacks
   view.applyBots = (which)->
     for team in which
-      view.notifications.clear(team)
+      @statistics.reset team
+      @notifications.clear team
       code = @editors.getCode team
       bot = @model.Bot.fromString code, @model.Bot, @model.Hex
       if bot instanceof Array
@@ -41,7 +44,7 @@ module.exports = (model)->
           view.error("Construction Error: #{bot[0]}", bot[1], team)
         view.error('Construction Error', bot[0], team)
       else
-        $(".editortitle.#{team}").html(
+        $(".botname.#{team}").html(
           bot.name
         )
         @model.setBot(team, bot)
@@ -60,6 +63,13 @@ module.exports = (model)->
     view.running = true
     view.notifications.clear()
 
+  view.updateStats = (which)->
+    for team in which
+      avTime = @statistics.getAverageTime team
+      wins = @statistics.getWins team
+      $(".stats.#{which} > #Time > .then").html avTime + 's'
+      $(".stats.#{which} > #Wins > .then").html wins
+
   view.pause = ->
     $('#TogglePlay').html 'play_arrow'
     view.running = false
@@ -73,7 +83,9 @@ module.exports = (model)->
 
   view.loop = ->
     if @running and not @won
-      @model.step()
+      # Perform engine step and measure how long it takes
+      @statistics.measure @model.activeBot, => @model.step()
+      @updateStats([model.activeBot])
     setTimeout(@loop.bind(@), @delay)
 
   #Load bots now!
@@ -88,8 +100,10 @@ module.exports = (model)->
       (()->@won=false).bind(@),
       190
     )
+
   view.onTake = (x, y, v) ->
     view.grid.onHexChange x, y, v
+
   view.onWin = (who, path, state) ->
     @won = true
 
@@ -101,6 +115,9 @@ module.exports = (model)->
       .transition({ opacity: "1"}, 1000)
 
     @grid.onWin(path, state)
+
+    @statistics.recordWin who
+    @updateStats([who])
 
     #Automatically Restart the game
     if @autorestart

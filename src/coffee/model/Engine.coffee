@@ -92,8 +92,8 @@ module.exports = class
 
       #Attempt to take spot, if succesfull swap bots
       if @grid.place x, y, @activeBot
-        @updateConnectionsAndCheckWin()
         @onTake x, y, @activeBot
+        @updateConnectionsAndCheckWin()
         @swapActiveBot()
         #Tell Generator it Worked
         if active.generator

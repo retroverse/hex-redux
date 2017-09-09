@@ -28,13 +28,33 @@ html
       .square
         #hex-grid
     .editors
-      .editor
-        h3.editortitle.red Player 1
+      .editor.red
+        h3.editortitle.red
+          .botname.red.stats-holder
+          .editorstats.stats-handle
+            .material-icons keyboard_arrow_down
+        .editorstats.stats.red.hidden
+          .stat#Time
+            .material-icons access_time
+            .then 0.01s
+          .stat#Wins
+            .material-icons grade
+            .then 2
         .editortext
         button.editorapply.red Apply
         button.editorreset.red Reset
-      .editor
-        h3.editortitle.blue Player 2
+      .editor.blue
+        h3.editortitle.blue
+          .botname.blue.stats-holder
+          .editorstats.stats-handle
+            .material-icons keyboard_arrow_down
+        .editorstats.stats.blue.hidden
+          .stat#Time
+            .material-icons access_time
+            .then 0.01s
+          .stat#Wins
+            .material-icons grade
+            .then 2
         .editortext
         button.editorapply.blue Apply
         button.editorreset.blue Reset

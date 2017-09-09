@@ -1,0 +1,56 @@
+@import "./Partials"
+
+.stats-holder
+  float: left
+
+.stats-handle
+  float: left
+  display: inline
+  margin-left: 10px
+  font-size: 45px
+  line-height: 34px
+  vertical-align: middle
+  transition: all .1s
+  user-select: none
+
+  &.open
+    transform: scaleY(-1)
+
+.stats
+  box-sizing: border-box
+  background: #F9F9F9
+  border: 2px solid #ebebeb
+  width: 95%
+  margin: auto
+  border-radius: 5px
+  margin-bottom: 10px
+  padding-top: 5px
+  padding-bottom: 5px
+
+  transition: all .25s
+  overflow: hidden
+
+  &.hidden
+    height: 0px
+    padding: 0px
+    opacity: 0
+    margin-bottom: 0px
+
+  .stat
+    margin-left: 10px
+    clear: both
+    height: 30px
+
+    .material-icons
+      color: $font-col
+      display: inline-block
+      float: left
+      font-size: 30px
+
+    .then
+      color: lighten($font-col, 15%)
+      display: inline
+      line-height: 30px
+      vertical-align: middle
+      margin-left: 10px
+      float: left

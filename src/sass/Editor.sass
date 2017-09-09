@@ -1,4 +1,5 @@
 @import "./Partials"
+@import "./Editorstats"
 $break_small: 850px
 
 .editors
@@ -9,18 +10,15 @@ $break_small: 850px
 
 .editor
   width: 50%
-  height: 400px
   float: left
   margin-top: 50px
 
   @media screen and (max-width: $break_small)
     float: none
     width: 100%
-    &:first-child
-      margin-top: 100px
 
     &:last-child
-      margin-top: 160px
+      margin-top: 30px
 
   .editortitle
     +label
@@ -32,7 +30,7 @@ $break_small: 850px
 
   .editortext
     width: 95%
-    height: 100%
+    height: 400px
     margin: auto
     border-radius: 5px
     border: 2px solid $light-grey
@@ -41,9 +39,6 @@ $break_small: 850px
     +label
     margin-top: 20px
     margin-left: 20px
-
-    //For the bottom of the page
-    margin-bottom: 50px
 
 //Highlighted warnings
 .warning

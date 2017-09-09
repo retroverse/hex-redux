@@ -1,4 +1,15 @@
 module.exports = (view) ->
+  #Show and Hide Stats
+  $('.stats-handle').click ({target})->
+    team =
+      if $(target).parent().parent().hasClass 'red'
+        'red'
+      else
+        'blue'
+
+    $(target).parent().toggleClass 'open'
+    $(".stats.#{team}").toggleClass 'hidden'
+
   #Restart Button
   $('#RestartGame').click ({target})->
     view.restart()
