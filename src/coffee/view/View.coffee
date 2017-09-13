@@ -38,7 +38,7 @@ module.exports = (model)->
       @statistics.reset team
       @notifications.clear team
       code = @editors.getCode team
-      bot = @model.Bot.fromString code, @model.Bot, @model.Hex
+      bot = @model.Bot.fromString code, @model.Bot, @model.Hex, @model.Bridge
       if bot instanceof Array
         if bot[1]
           view.error("Construction Error: #{bot[0]}", bot[1], team)

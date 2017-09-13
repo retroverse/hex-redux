@@ -4,15 +4,17 @@ module.exports = class
     @init()
   init: ->
   main: (grid)->return null
-  @fromString: (codeText, BotClass, HexClass) ->
+  @fromString: (codeText, BotClass, HexClass, BridgeClass) ->
     try
       ret = new Function(
         'Bot',
         'Hex',
+        'Bridge',
         codeText
       )(
         BotClass,
-        HexClass
+        HexClass,
+        BridgeClass,
       )
     catch e
       return [

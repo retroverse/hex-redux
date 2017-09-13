@@ -1,6 +1,7 @@
 Grid = require('./Grid')
 Bot = require('./Bot')
 Hex = require('./Hex')
+Bridge = require('./Bridge')
 _ = require('lodash')
 
 module.exports = class
@@ -14,6 +15,7 @@ module.exports = class
     @Hex = Hex
     @Bot = Bot
     @Grid = Grid
+    @Bridge = Bridge
 
     @onWin = (who, path, state) ->
     @onTake = (x, y, c) ->
