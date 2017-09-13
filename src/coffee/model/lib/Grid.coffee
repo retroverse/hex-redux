@@ -30,6 +30,16 @@ module.exports = (grid)->
     g.state[hex.x][hex.y].value = val
     return g
 
+  #Returns a function to check if a hex is 'value'
+  grid.prototype.is = (value) => (hex) =>
+    if value is 'empty' then value = 'neutral'
+    hex.value is value
+
+  #Returns a function to check if a hex isnt 'value'
+  grid.prototype.isnt = (value) => (hex) =>
+    if value is 'empty' then value = 'neutral'
+    hex.value isnt value
+
   #Returns whether a hex is empty
   grid.prototype.is_empty =
   grid.prototype.is_neutral = (h, y)->
@@ -51,15 +61,22 @@ module.exports = (grid)->
     if this instanceof grid then h = this.get(h, y)
     h.value is 'blue'
 
+  grid.prototype.opposite = (v)->
+    if v is 'red' then 'blue' else 'red'
+
   #Returns whether two given hex's are opposites
   grid.prototype.is_opposite = (h, o)->
     v1 = o
     v2 = h
     if h instanceof Hex
-       v1 = h.value
-       v2 = o.value
-    if v1 is 'neutral' or v2 is 'neutral' then return false
-    return v1 isnt v2
+       v1 = o.value
+       v2 = h.value
+    if this instanceof grid
+      return v1 is this.opposite(v2)
+    else
+      if v1 is 'neutral' or v2 is 'neutral'
+        return false
+      return v1 isnt v2
 
   #Returns every hex in the grid
   grid.prototype.all = ->
