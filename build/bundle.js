@@ -49017,8 +49017,12 @@ module.exports = function(grid) {
     var key, results;
     results = [];
     for (key in this) {
-      if (typeof this[key] === 'function') {
-        results.push(this[key] = this[key].bind(this));
+      if (key !== 'bindToSelf') {
+        if (typeof this[key] === 'function') {
+          results.push(this[key] = this[key].bind(this));
+        } else {
+          results.push(void 0);
+        }
       } else {
         results.push(void 0);
       }
