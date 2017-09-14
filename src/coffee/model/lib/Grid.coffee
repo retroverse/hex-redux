@@ -121,5 +121,6 @@ module.exports = (grid)->
   #Centralized Hex methods (for mapping)
   grid.prototype.bindToSelf = () ->
     for key of @
-      if typeof @[key] is 'function'
-        @[key] = @[key].bind @
+      if key isnt 'bindToSelf'
+        if typeof @[key] is 'function'
+          @[key] = @[key].bind @
