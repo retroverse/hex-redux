@@ -123,4 +123,4 @@ module.exports = (grid)->
     for key of @
       if key isnt 'bindToSelf'
         if typeof @[key] is 'function'
-          @[key] = @[key].bind @
+          @[key] = grid.prototype[key].bind @
