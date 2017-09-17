@@ -10,7 +10,7 @@ module.exports = (grid)->
     })
 
   grid.prototype.hasWon = (which)->
-    not not grid.updateConnections which
+    not not @updateConnections which
 
   grid.prototype.updateConnections = (which)->
     unless which is 'red' or which is 'blue'
