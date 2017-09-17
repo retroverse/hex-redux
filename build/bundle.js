@@ -49048,7 +49048,7 @@ module.exports = function(grid) {
     });
   };
   grid.prototype.hasWon = function(which) {
-    return !!grid.updateConnections(which);
+    return !!this.updateConnections(which);
   };
   return grid.prototype.updateConnections = function(which) {
     var endX, endY, finder, goal, hex, i, j, k, len, len1, len2, path, paths, ref, row, to;
