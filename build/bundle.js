@@ -49019,7 +49019,7 @@ module.exports = function(grid) {
     for (key in this) {
       if (key !== 'bindToSelf') {
         if (typeof this[key] === 'function') {
-          results.push(this[key] = this[key].bind(this));
+          results.push(this[key] = grid.prototype[key].bind(this));
         } else {
           results.push(void 0);
         }
