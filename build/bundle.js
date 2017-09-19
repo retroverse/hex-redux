@@ -28480,10 +28480,12 @@ module.exports = function(model) {
     return view.running = false;
   };
   view.error = function(title, message, which) {
+    console.warn(message);
     view.notifications.post(title, message, which);
     return view.pause();
   };
   view.warn = function(title, which) {
+    console.warn(title);
     return view.notifications.post("Warning", title, which);
   };
   view.loop = function() {
@@ -48714,7 +48716,7 @@ module.exports = (function() {
         returned = this.iterateGenerator(active);
       } catch (error) {
         e = error;
-        this.error('Bot encounted a runtime error. ', e, this.activeBot);
+        this.error('Bot encountered a runtime error. ', e, this.activeBot);
       }
     } else {
       g = _.cloneDeep(this.grid);
@@ -48723,7 +48725,7 @@ module.exports = (function() {
         returned = active.main(g);
       } catch (error) {
         e = error;
-        this.error('Bot encounted a runtime error. ', e, this.activeBot);
+        this.error('Bot encountered a runtime error. ', e, this.activeBot);
       }
     }
     if (typeof returned === 'function') {

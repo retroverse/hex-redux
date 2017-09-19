@@ -69,7 +69,7 @@ module.exports = class
       try
         returned = @iterateGenerator(active)
       catch e
-        @error('Bot encounted a runtime error. ', e, @activeBot)
+        @error('Bot encountered a runtime error. ', e, @activeBot)
     else
       #Perform Turn
       g = _.cloneDeep @grid
@@ -77,7 +77,7 @@ module.exports = class
       try
         returned = active.main g
       catch e
-        @error('Bot encounted a runtime error. ', e, @activeBot)
+        @error('Bot encountered a runtime error. ', e, @activeBot)
 
     #Check if returned is a generator
     if typeof returned is 'function'
