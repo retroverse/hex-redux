@@ -75,10 +75,12 @@ module.exports = (model)->
     view.running = false
 
   view.error = (title, message, which) ->
+    console.warn(message)
     view.notifications.post(title, message, which)
     view.pause()
 
   view.warn = (title, which) ->
+    console.warn(title)
     view.notifications.post("Warning", title, which)
 
   view.loop = ->
