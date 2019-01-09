@@ -86,6 +86,7 @@ module.exports = (model)->
   view.loop = ->
     if @running and not @won
       # Perform engine step and measure how long it takes
+      $('.titletag').css('color', @model.activeBot)
       @statistics.measure @model.activeBot, => @model.step()
       @updateStats([model.activeBot])
     setTimeout(@loop.bind(@), @delay)
