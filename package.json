@@ -9,7 +9,7 @@
   "devDependencies": {
     "coffee-loader": "^0.7.3",
     "coffee-script": "^1.12.7",
-    "css-loader": "^0.28.11",
+    "css-loader": "^3.0.0",
     "file-loader": "^0.11.2",
     "html-loader": "^0.4.5",
     "html-webpack-plugin": "^2.30.1",
@@ -19,14 +19,14 @@
     "sass-loader": "^6.0.7",
     "style-loader": "^0.18.2",
     "webpack": "^2.7.0",
-    "webpack-dev-server": "^2.11.5"
+    "webpack-dev-server": "^3.7.1"
   },
   "dependencies": {
     "brace": "^0.10.0",
     "jquery": "^3.4.1",
     "jquery.transit": "^0.9.12",
     "lodash": "^4.17.11",
-    "pathfinding": "retroverse/pathfinding.js"
+    "pathfinding": "github:retroverse/pathfinding.js"
   },
   "scripts": {
     "start": "webpack-dev-server --open",
