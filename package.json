@@ -28,7 +28,7 @@
   "dependencies": {
     "jquery": "^3.4.1",
     "jquery.transit": "^0.9.12",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "pathfinding": "github:retroverse/pathfinding.js"
   },
   "scripts": {
